@@ -1,695 +1,428 @@
-// Igarassu Ordinário — modelos de inserção.
-// Cada modelo recebe os dados de um pedido (JSON) e devolve o HTML de uma ou mais peças.
-// Medidas em pixels reais da peça (1080 de largura = post/story do Instagram).
+// Igarassu Ordinário — modelos de inserção, no padrão do Guia de identidade visual (nov/2026).
+// Todas as peças de feed/story saem do mesmo "motor" (arte), que monta os blocos do guia
+// na ordem: faixa · logo + selo · título · subtítulo · foto · lista · card de texto · gancho ·
+// preço · ilustração · botão · rodapé (fonte + @).
+
+const config = { logo: '' }; // o gerar.js preenche com a logo redonda (data URI)
 
 const MARCA = {
   nome: 'Igarassu Ordinário',
   arroba: '@igarassuordinarioo',
   site: 'bruninhoscout-lab.github.io/igarassu-ordinario',
-  slogan: 'Igarassu do jeito que o povo fala.',
   descricao: 'Notícia, serviço e o dia a dia de Igarassu e do Litoral Norte de Pernambuco, sem enrolação.',
 };
 
-const CATEGORIAS = {
-  cidade: { rotulo: 'Cidade', classe: 'cat-cidade' },
-  servico: { rotulo: 'Serviço', classe: 'cat-servico' },
-  comercio: { rotulo: 'Comércio Local', classe: 'cat-comercio' },
-  cultura: { rotulo: 'Cultura e Eventos', classe: 'cat-cultura' },
-  seguranca: { rotulo: 'Segurança', classe: 'cat-seguranca' },
-};
-
-const semAcento = (s) => String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim();
-
-function cat(valor, padrao = 'cidade') {
-  const v = semAcento(valor);
-  let chave = padrao;
-  if (v) {
-    if (CATEGORIAS[v]) chave = v;
-    else if (v.startsWith('servi') || v.includes('utilidade')) chave = 'servico';
-    else if (v.startsWith('comerc') || v.includes('negocio')) chave = 'comercio';
-    else if (v.startsWith('cultura') || v.includes('evento') || v.includes('agenda')) chave = 'cultura';
-    else if (v.startsWith('seguran') || v.includes('policia')) chave = 'seguranca';
-    else if (v.startsWith('cidade')) chave = 'cidade';
-  }
-  return { chave, ...CATEGORIAS[chave] };
-}
-
 const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
-// *palavra* vira destaque colorido; quebra de linha vira <br>
-const fmt = (s) => esc(s).replace(/\*([^*]+)\*/g, '<span class="destaque">$1</span>').replace(/\n/g, '<br>');
+// *palavra* = destaque (amarelo no verde, verde no creme) · **negrito** · quebra de linha
+const fmt = (s) => esc(s)
+  .replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>')
+  .replace(/\*([^*]+)\*/g, '<span class="destaque">$1</span>')
+  .replace(/\n/g, '<br>');
 const lista = (v) => (Array.isArray(v) ? v : v ? String(v).split('\n') : []).filter(Boolean);
+const semAcento = (s) => String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
 
-function hoje() {
-  const d = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Recife' }));
-  return `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`;
-}
-const dataDe = (d) => (d.data === false ? '' : esc(d.data || hoje()));
-
-const marca = (px, clara = false, so_io = false) =>
-  `<div class="marca${clara ? ' marca-clara' : ''}" style="font-size:${px}px"><span class="marca-io">IO</span>${so_io ? '' : `<span>${MARCA.nome}</span>`}</div>`;
-const faixa = (px = 18) => `<div class="faixa" style="--faixa:${px}px"><i></i><i></i><i></i><i></i></div>`;
-const foto = (url, extra = '') => `<div class="foto ${extra}" style="background-image:url('${url}')"></div>`;
-
-const MESES = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
-
-// Ícones de traço (viewBox 24) para capas de destaque e detalhes
+/* ------------------------------------------------------------------ */
+/* Ícones (traço branco, viewBox 24)                                   */
+/* ------------------------------------------------------------------ */
 const ICONES = {
+  check: '<path d="M5 12.5l4.5 4.5L19 7.5"/>',
+  info: '<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.01"/>',
+  calendario: '<rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/>',
+  relogio: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5.5l3.5 2"/>',
+  local: '<path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/>',
+  telefone: '<path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a1 1 0 0 1-1 1A16 16 0 0 1 4 5a1 1 0 0 1 1-1z"/>',
+  whatsapp: '<path d="M4 20l1.3-4A8.5 8.5 0 1 1 8.4 19z"/><path d="M9 9.2c.3 2.4 2.6 4.8 5.3 5.3l1.2-1.4-1.9-.9-.8.8c-1-.4-1.9-1.3-2.3-2.3l.8-.8-.9-1.9z"/>',
+  instagram: '<rect x="4" y="4" width="16" height="16" rx="4.5"/><circle cx="12" cy="12" r="3.6"/><path d="M16.8 7.2v.01"/>',
+  dinheiro: '<rect x="3" y="6.5" width="18" height="11" rx="2"/><circle cx="12" cy="12" r="2.5"/><path d="M6.5 9.5v.01M17.5 14.5v.01"/>',
+  alerta: '<path d="M12 3.5l9.5 16.5h-19z"/><path d="M12 10v4.5M12 17.3v.01"/>',
+  saude: '<path d="M9.5 3.5h5v6h6v5h-6v6h-5v-6h-6v-5h6z"/>',
+  escola: '<path d="M3 9l9-4.5L21 9l-9 4.5z"/><path d="M7 11v5c3 2 7 2 10 0v-5"/>',
+  obra: '<path d="M4 18h16"/><path d="M6 18v-3a6 6 0 0 1 12 0v3"/><path d="M12 9V6"/>',
+  arvore: '<path d="M12 21v-6"/><path d="M12 3c4 0 6.5 3 6.5 6.5S15.5 15 12 15 5.5 13 5.5 9.5 8 3 12 3z"/>',
+  musica: '<path d="M9 18V5.5l11-2V16"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="17.5" cy="16" r="2.5"/>',
+  comida: '<path d="M4 11h16a8 8 0 0 1-16 0z"/><path d="M8 4c0 2 1.5 2 1.5 4M12 4c0 2 1.5 2 1.5 4"/>',
+  sacola: '<path d="M5 8h14l-1 12.5H6z"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8"/>',
+  artesanato: '<path d="M12 3.5a8.5 8.5 0 1 0 0 17c1.2 0 1.6-1 1.2-2-.6-1.4.3-2.5 1.7-2.5H17a3.5 3.5 0 0 0 3.5-3.5c0-5-3.8-9-8.5-9z"/><path d="M7.5 11v.01M10 7.5v.01M14.5 7.5v.01"/>',
+  bola: '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/>',
+  agua: '<path d="M12 3.5s6.5 7 6.5 11a6.5 6.5 0 0 1-13 0c0-4 6.5-11 6.5-11z"/>',
+  luz: '<path d="M13 2.5L5 13.5h6l-1 8 8-11h-6z"/>',
+  onibus: '<rect x="4.5" y="3.5" width="15" height="14" rx="3"/><path d="M4.5 11h15M8 20.5v-3M16 20.5v-3M8 14.5v.01M16 14.5v.01"/>',
+  carro: '<path d="M4 16v-4l2-5h12l2 5v4z"/><path d="M4 12h16M7 19v-3M17 19v-3"/>',
+  pessoa: '<circle cx="12" cy="7.5" r="3.5"/><path d="M5 20.5a7 7 0 0 1 14 0"/>',
+  casa: '<path d="M3.5 11L12 4l8.5 7"/><path d="M6 9.5v10.5h12V9.5"/><path d="M10 20v-5h4v5"/>',
+  igreja: '<path d="M12 2.5v4M10.3 4.2h3.4"/><path d="M8 21V10l4-3.5 4 3.5v11"/><path d="M4 21v-6.5l4-2M20 21v-6.5l-4-2M3 21h18"/><path d="M10.5 21v-3.5h3V21"/>',
+  estrela: '<path d="M12 3.5l2.6 5.4 5.9.8-4.3 4.1 1 5.8L12 16.8l-5.2 2.8 1-5.8-4.3-4.1 5.9-.8z"/>',
+  pintura: '<rect x="4" y="3.5" width="14" height="5.5" rx="1.5"/><path d="M18 6.2h2v5.3h-8v3"/><rect x="10.5" y="14.5" width="3" height="6.5" rx="1"/>',
+  parquinho: '<path d="M6 21V6.5M6 6.5l12 14.5"/>',
+  megafone: '<path d="M3.5 10v4h4l9 5V5l-9 5z"/><path d="M19.5 9.5a4 4 0 0 1 0 5"/>',
+  bandeira: '<path d="M5.5 21V4"/><path d="M5.5 4.5c4-2 7 2 13 0v9c-6 2-9-2-13 0"/>',
+  microfone: '<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11.5a6.5 6.5 0 0 0 13 0M12 18v3M8.5 21h7"/>',
   noticias: '<rect x="3" y="4" width="14" height="16" rx="2"/><path d="M17 8h3v10a2 2 0 0 1-2 2H6"/><path d="M7 8h6M7 12h6M7 16h4"/>',
-  servico: '<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.01"/>',
-  agenda: '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>',
   seguranca: '<path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/>',
-  comercio: '<path d="M5 8h14l-1 13H6z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/>',
-  cultura: '<path d="M9 18V5l11-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="17" cy="16" r="3"/>',
-  anuncie: '<path d="M3 10v4h4l9 5V5L7 10z"/><path d="M19 9a4 4 0 0 1 0 6"/>',
-  cidade: '<path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/>',
-  contato: '<path d="M4 5h16v11H9l-5 4z"/>',
-  urgente: '<path d="M12 3l10 18H2z"/><path d="M12 10v5M12 18v.01"/>',
+  pergunta: '<circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.6 2.6 0 1 1 3.6 2.4c-.7.3-1.1.9-1.1 1.6v.5M12 17v.01"/>',
 };
-const icone = (nome, px, cor = 'currentColor', traco = 1.8) =>
-  `<svg width="${px}" height="${px}" viewBox="0 0 24 24" fill="none" stroke="${cor}" stroke-width="${traco}" stroke-linecap="round" stroke-linejoin="round">${ICONES[nome] || ICONES.noticias}</svg>`;
+const svgIcone = (nome, cor = 'currentColor', traco = 2.4) =>
+  `<svg viewBox="0 0 24 24" fill="none" stroke="${cor}" stroke-width="${traco}" stroke-linecap="round" stroke-linejoin="round">${ICONES[nome] || ICONES.check}</svg>`;
+
+// adivinha o ícone pelo texto (pode ser forçado com { "icone": "..." })
+function iconePara(texto) {
+  const t = semAcento(texto);
+  const regras = [
+    ['whatsapp', /whats|zap/], ['instagram', /^\s*@|insta/], ['telefone', /telefone|ligue|ligacao|fone|\(\d\d\)|0800/],
+    ['local', /\brua\b|\bav\.?\s|avenida|praca|local|onde|endereco|bairro/], ['calendario', /\bdia\b|data|quando|\d{1,2}\/\d{1,2}|sabado|domingo|segunda|terca|quarta|quinta|sexta/],
+    ['relogio', /\bhora|\d{1,2}h\b|horario/], ['dinheiro', /r\$|preco|valor|gratis|gratuit|entrada|ingresso|conta/],
+    ['saude', /saude|hospital|vacina|upa|posto|medic/], ['escola', /escola|aula|matricula|aluno|curso/],
+    ['agua', /agua|compesa|aqua|chuva/], ['luz', /energia|luz|neoenergia/], ['onibus', /onibus|transporte|linha/],
+    ['pintura', /pintura|pintad/], ['parquinho', /parquinho|brinquedo/], ['bola', /quadra|campo|futebol|esporte/],
+    ['comida', /comida|comidinha|gastronomia|lanche/], ['musica', /musica|show|samba|forro|cultura|banda/],
+    ['artesanato', /artesanato|arte\b/], ['sacola', /comercio|loja|compra|feira/], ['arvore', /arvore|jardim|plantio/],
+    ['obra', /obra|reforma|pavimenta|asfalto|calcamento/], ['alerta', /atencao|cuidado|alerta|perigo/],
+  ];
+  for (const [nome, re] of regras) if (re.test(t)) return nome;
+  return 'check';
+}
 
 /* ------------------------------------------------------------------ */
-/* Peças reaproveitadas                                                */
+/* Ilustrações flat do pé da arte                                      */
 /* ------------------------------------------------------------------ */
+function coqueiro(x, base, alt, espelho = false) {
+  const s = espelho ? -1 : 1;
+  const tx = x + 10 * s, ty = base - alt;
+  const f = (dx, dy, cx, cy) => `<path d="M${tx} ${ty} Q${tx + cx * s} ${ty + cy} ${tx + dx * s} ${ty + dy}"/>`;
+  return `<g fill="none" stroke="#075C2A" stroke-linecap="round">
+    <path d="M${x} ${base} C${x + 14 * s} ${base - alt * 0.45} ${x - 8 * s} ${base - alt * 0.75} ${tx} ${ty}" stroke-width="17"/>
+    <g stroke-width="13">${f(-120, 50, -70, -60)}${f(-100, -40, -40, -70)}${f(10, -75, -15, -60)}${f(110, -30, 50, -65)}${f(125, 60, 85, -45)}</g>
+  </g>`;
+}
+const chao = (w, h) => `<path d="M0 ${h - 80} Q${w * 0.3} ${h - 112} ${w * 0.55} ${h - 96} T${w} ${h - 86} V${h} H0Z" fill="#086A30"/>`;
 
-const RODAPE_CSS = `
-.rodape{flex:none;height:132px;background:var(--verde-escuro);padding:0 72px;display:flex;align-items:center;justify-content:space-between;gap:24px;color:#fff}
-.rodape .cta{font-size:30px;font-weight:800;color:var(--amarelo)}
-.rodape .arroba{font-size:26px;font-weight:700;opacity:.9;white-space:nowrap}`;
-const rodape = (cta) => `<div class="rodape"><span class="cta">${fmt(cta)}</span><span class="arroba">${MARCA.arroba}</span></div>`;
+const CENAS = {
+  coqueiros: (w, h) => `${coqueiro(120, h - 40, 250)}${coqueiro(w - 110, h - 40, 220, true)}${chao(w, h)}`,
+  praca: (w, h) => `${coqueiro(120, h - 40, 250)}${coqueiro(w - 110, h - 40, 220, true)}
+    <g stroke-linecap="round" fill="none">
+      <path d="M260 ${h - 60}V${h - 185}M300 ${h - 60}V${h - 185}M260 ${h - 185}H300M260 ${h - 145}H300M260 ${h - 105}H300" stroke="#FFCA3E" stroke-width="10"/>
+      <path d="M300 ${h - 185}L410 ${h - 62}" stroke="#FFCA3E" stroke-width="12"/>
+      <path d="M440 ${h - 60}L475 ${h - 210}L510 ${h - 60}" stroke="#F58D1E" stroke-width="10"/>
+      <path d="M462 ${h - 200}V${h - 108}M488 ${h - 200}V${h - 108}" stroke="#fff" stroke-width="4"/>
+      <path d="M455 ${h - 108}H495" stroke="#E43A2D" stroke-width="9"/>
+    </g>
+    <rect x="600" y="${h - 112}" width="300" height="50" rx="12" fill="#F2D49A"/>
+    <path d="M640 ${h - 60}V${h - 165}M860 ${h - 60}V${h - 165}M750 ${h - 60}V${h - 140}M640 ${h - 165}H860" stroke="#fff" stroke-width="4" fill="none"/>
+    <path d="M640 ${h - 150}H860" stroke="#fff" stroke-width="3" stroke-dasharray="12 8"/>
+    ${chao(w, h)}`,
+  feira: (w, h) => {
+    const cores = ['#E43A2D', '#FFCA3E', '#25BA5C', '#FFF8E8', '#F58D1E'];
+    let band = '';
+    for (let i = 0; i < 17; i++) {
+      const x = 20 + i * 62, y = 22 + Math.sin(((i + 0.5) / 17) * Math.PI) * 34;
+      band += `<path d="M${x} ${y}h34l-17 30z" fill="${cores[i % 5]}"/>`;
+    }
+    const barraca = (x, cor) => `<g><rect x="${x}" y="${h - 150}" width="120" height="70" fill="#C98B4E"/>
+      <rect x="${x}" y="${h - 160}" width="120" height="14" fill="#8C5A2E"/>
+      <path d="M${x - 14} ${h - 215}h148l-14 50H${x}z" fill="${cor}"/><path d="M${x} ${h - 165}v-50M${x + 120} ${h - 165}v-50" stroke="#fff" stroke-width="5"/>
+      <circle cx="${x + 30}" cy="${h - 170}" r="12" fill="#E43A2D"/><circle cx="${x + 60}" cy="${h - 172}" r="12" fill="#98E648"/><circle cx="${x + 90}" cy="${h - 170}" r="12" fill="#F58D1E"/></g>`;
+    return `<path d="M0 22 Q${w / 2} 92 ${w} 22" stroke="#FFF8E8" stroke-width="3" fill="none"/>${band}
+      ${coqueiro(70, h - 40, 200)}${barraca(170, '#E43A2D')}${barraca(370, '#FFCA3E')}${barraca(570, '#F58D1E')}
+      <g fill="#fff"><path d="M790 ${h - 70}V${h - 200}l70-60 70 60V${h - 70}z"/><rect x="845" y="${h - 310}" width="30" height="60"/><rect x="852" y="${h - 335}" width="16" height="30"/><rect x="842" y="${h - 324}" width="36" height="10"/></g>
+      <path d="M840 ${h - 70}v-60a20 20 0 0 1 40 0v60z" fill="#0E8D40"/><rect x="805" y="${h - 180}" width="22" height="30" rx="4" fill="#0E8D40"/><rect x="893" y="${h - 180}" width="22" height="30" rx="4" fill="#0E8D40"/>
+      ${coqueiro(w - 45, h - 40, 190, true)}${chao(w, h)}`;
+  },
+  igreja: (w, h) => `${coqueiro(140, h - 40, 240)}
+    <g fill="#fff"><path d="M360 ${h - 70}V${h - 210}l180-70 180 70V${h - 70}z"/><rect x="720" y="${h - 290}" width="100" height="220"/><path d="M712 ${h - 290}h116l-58-44z"/></g>
+    <circle cx="770" cy="${h - 342}" r="9" fill="#F58D1E"/>
+    <g fill="#0E8D40"><path d="M505 ${h - 70}v-80a35 35 0 0 1 70 0v80z"/><rect x="410" y="${h - 190}" width="40" height="55" rx="20"/><rect x="630" y="${h - 190}" width="40" height="55" rx="20"/><rect x="750" y="${h - 260}" width="40" height="50" rx="20"/><circle cx="540" cy="${h - 228}" r="18"/></g>
+    ${coqueiro(w - 110, h - 40, 220, true)}${chao(w, h)}`,
+  casario: (w, h) => {
+    const casa = (x, larg, alt, parede, porta) => `<rect x="${x}" y="${h - 70 - alt}" width="${larg}" height="${alt}" fill="${parede}"/>
+      <rect x="${x - 8}" y="${h - 84 - alt}" width="${larg + 16}" height="18" rx="4" fill="#FFF8E8"/>
+      <rect x="${x + larg / 2 - 18}" y="${h - 140}" width="36" height="70" rx="4" fill="${porta}"/>
+      <rect x="${x + 16}" y="${h - 50 - alt + 28}" width="28" height="34" rx="3" fill="${porta}"/><rect x="${x + larg - 44}" y="${h - 50 - alt + 28}" width="28" height="34" rx="3" fill="${porta}"/>`;
+    return `${casa(170, 170, 160, '#FFCA3E', '#0B7A37')}${casa(355, 160, 190, '#F58D1E', '#FFF8E8')}${casa(530, 170, 150, '#FFF8E8', '#0E8D40')}${casa(715, 160, 180, '#E43A2D', '#FFF8E8')}
+      ${coqueiro(90, h - 40, 220)}${coqueiro(w - 80, h - 40, 210, true)}${chao(w, h)}`;
+  },
+};
+const cena = (nome, w, h) => (CENAS[nome] ? `<svg class="cena-svg" viewBox="0 0 ${w} ${h}" width="${w}" height="${h}">${CENAS[nome](w, h)}</svg>` : '');
 
-function capaNoticia(d, { cta, contador } = {}) {
-  const c = cat(d.categoria);
-  const f = !!d.foto;
+/* ------------------------------------------------------------------ */
+/* Motor das artes (feed e story)                                      */
+/* ------------------------------------------------------------------ */
+const FORMATOS = {
+  story: { largura: 1080, altura: 1920 },
+  feed: { largura: 1080, altura: 1350 },
+  'feed-alto': { largura: 1080, altura: 1440 },
+};
+
+function arroba(px) {
+  const logo = config.logo ? `<img class="logo" src="${config.logo}" style="font-size:${Math.max(40, Math.round(px * 1.35))}px">` : '';
+  return `<span class="arroba" style="font-size:${px}px">${logo}<em><b>@igarassu</b><span>ordinarioo</span></em></span>`;
+}
+
+function itemHtml(it) {
+  const o = typeof it === 'string' ? { texto: it } : it;
+  const texto = o.texto || o.valor || '';
+  const ic = o.icone || iconePara(`${o.rotulo || ''} ${texto}`);
+  return `<div class="item"><span class="ic">${svgIcone(ic)}</span><span>${o.rotulo ? `<small>${esc(o.rotulo)}</small>` : ''}${fmt(texto)}</span></div>`;
+}
+
+function arte(d, fmtNome = 'story') {
+  const story = fmtNome === 'story';
+  const { largura: W } = FORMATOS[fmtNome] || FORMATOS.story;
+  const k = story ? 1 : 0.94; // escala de fonte do feed
+  const px = (n) => Math.round(n * k);
+  const pesada = !!d.pesada;
+  const temFoto = !!d.foto;
+  const cenaNome = d.cena === undefined ? (temFoto || pesada ? null : 'coqueiros') : d.cena;
+  const cenaH = story ? 330 : 260;
+  const itens = lista(d.itens);
+  const estiloChamada = d.chamada_estilo || (story ? 'botao' : 'texto');
+  const chamada = d.chamada === false ? '' : d.chamada || (story ? 'Confere no próximo story →' : 'Arrasta pro lado que a gente conta 👉');
+  const padTopo = story ? 158 : 46;
+  const padBase = story ? 140 : 44;
+  const lados = story ? 70 : 60;
+  const seloAlerta = d.selo_alerta || /urgente|alerta|plant[aã]o|aten[cç][aã]o/i.test(d.selo || '');
+
   return `<style>
-.topo{height:128px;padding:0 72px;display:flex;align-items:center;justify-content:space-between;flex:none}
-.topo .data{font-size:26px;font-weight:700;color:var(--texto-suave)}
-.img{position:relative;height:480px;flex:none;background:var(--tinta)}
-.img .etiqueta{position:absolute;left:72px;bottom:-24px;font-size:26px;z-index:2;box-shadow:0 6px 0 rgba(0,0,0,.08)}
-.corpo{flex:1;min-height:0;padding:${f ? '62px' : '24px'} 72px 44px;display:flex;flex-direction:column;gap:30px}
-.corpo>.etiqueta{font-size:28px;flex:none}
-.corpo h1{flex:0 1 auto;min-height:0;font-size:${f ? 76 : 100}px;padding-left:30px;border-left:14px solid var(--cor)}
-.resumo{flex:none;font-size:32px;line-height:1.45;font-weight:500;color:var(--texto-suave);display:-webkit-box;-webkit-line-clamp:${f ? 2 : 5};-webkit-box-orient:vertical;overflow:hidden}
-.fonte{flex:none;margin-top:auto;font-size:22px;font-weight:700;color:var(--texto-suave);text-transform:uppercase;letter-spacing:.06em}
-.contador{position:absolute;top:40px;right:72px;font-size:24px;font-weight:800;padding:8px 18px;border-radius:999px;background:var(--verde-escuro);color:#fff}
-${RODAPE_CSS}
+.conteudo{flex:1;min-height:0;display:flex;flex-direction:column;padding:${padTopo}px ${lados}px ${padBase}px;gap:${px(22)}px}
+.topo{flex:none;display:flex;align-items:center;gap:${px(16)}px}
+.topo .logo{font-size:${px(78)}px}
+.selo{font-size:${px(30)}px}
+.titulo{flex:0 1 auto;min-height:0;font-size:${d.tamanho_titulo || px(116)}px;margin-top:${px(4)}px}
+.sub{flex:none;font-size:${px(36)}px;margin-top:-${px(6)}px}
+.foto{position:relative;flex:1 1 ${px(560)}px;min-height:${px(280)}px;border-radius:${px(30)}px;border:${px(7)}px solid #111;background:#0B7A37 center/cover no-repeat;box-shadow:0 ${px(10)}px 0 rgba(0,0,0,.25)}
+.balao{position:absolute;top:${px(40)}px;right:${px(40)}px;max-width:62%;background:#fff;color:#111;border:${px(6)}px solid #111;border-radius:${px(28)}px;padding:${px(18)}px ${px(30)}px;font-size:${px(40)}px;font-weight:900;text-transform:uppercase;text-align:center;line-height:1.08}
+.balao::after{content:'';position:absolute;left:${px(70)}px;bottom:-${px(21)}px;width:${px(34)}px;height:${px(34)}px;background:#fff;border-right:${px(6)}px solid #111;border-bottom:${px(6)}px solid #111;transform:rotate(45deg)}
+.itens{flex:none;display:flex;flex-direction:column;gap:${px(16)}px}
+.item{font-size:${px(36)}px;padding:${px(18)}px ${px(26)}px}
+.card{flex:none;font-size:${px(30)}px;padding:${px(26)}px ${px(30)}px}
+.card p+p{margin-top:.6em}
+.gancho{flex:none;font-size:${px(42)}px;padding:${px(28)}px ${px(30)}px}
+.preco{flex:none;display:flex;align-items:center;gap:${px(24)}px;background:var(--amarelo);color:var(--tinta);border-radius:${px(24)}px;padding:${px(18)}px ${px(30)}px;align-self:flex-start}
+.preco s{font-size:${px(34)}px;font-weight:800;opacity:.7}
+.preco b{font-size:${px(86)}px;font-weight:900;letter-spacing:-.02em;line-height:1}
+.vazio{flex:1 1 0;min-height:0}
+.cena{flex:0 0 auto;height:${cenaH}px;margin:0 -${lados}px;display:flex;align-items:flex-end;overflow:hidden}
+.cena-svg{display:block}
+.chamada{flex:none;display:flex;justify-content:${estiloChamada === 'botao' ? 'center' : 'flex-start'}}
+.botao{font-size:${px(36)}px}
+.chamada-texto{font-size:${px(32)}px}
+.fonte{font-size:${px(26)}px}
 </style>
-<div class="peca ${c.classe}">
-  <div class="topo">${marca(34)}<span class="data">${dataDe(d)}</span></div>
-  ${f ? `<div class="img">${foto(d.foto)}<span class="etiqueta">${esc(d.etiqueta || c.rotulo)}</span></div>` : ''}
-  <div class="corpo">
-    ${f ? '' : `<span class="etiqueta">${esc(d.etiqueta || c.rotulo)}</span>`}
-    <h1 class="ajusta" data-min="44">${fmt(d.titulo)}</h1>
-    ${d.resumo ? `<p class="resumo">${fmt(d.resumo)}</p>` : ''}
-    ${d.fonte ? `<p class="fonte">Fonte: ${esc(d.fonte)}</p>` : ''}
+<div class="peca${pesada ? ' pesada' : ''}">
+  <div class="faixa"><i></i><i></i><i></i></div>
+  <div class="conteudo">
+    ${!cenaNome && !temFoto && !story ? '<div class="vazio"></div>' : ''}
+    ${d.selo !== false ? `<div class="topo">${d.logo_topo === false || !config.logo ? '' : `<img class="logo" src="${config.logo}">`}<span class="selo${seloAlerta ? ' alerta' : ''}">${fmt(d.selo || 'Igarassu Ordinário')}</span></div>` : ''}
+    ${d.titulo ? `<h1 class="titulo ajusta" data-min="${px(54)}">${fmt(d.titulo)}</h1>` : ''}
+    ${d.subtitulo ? `<p class="sub">${fmt(d.subtitulo)}</p>` : ''}
+    ${temFoto ? `<div class="foto" style="background-image:url('${d.foto}');${d.foto_posicao ? `background-position:${esc(d.foto_posicao)}` : ''}">${d.balao ? `<div class="balao">${fmt(d.balao)}</div>` : ''}</div>` : ''}
+    ${itens.length ? `<div class="itens">${itens.map(itemHtml).join('')}</div>` : ''}
+    ${d.texto ? `<div class="card">${String(d.texto).split(/\n\s*\n/).map((p) => `<p>${fmt(p)}</p>`).join('')}</div>` : ''}
+    ${d.gancho ? `<div class="gancho">${fmt(d.gancho)}</div>` : ''}
+    ${d.preco ? `<div class="preco">${d.preco_antigo ? `<s>${esc(d.preco_antigo)}</s>` : ''}<b>${esc(d.preco)}</b></div>` : ''}
+    ${temFoto ? '' : '<div class="vazio"></div>'}
+    ${cenaNome ? `<div class="cena">${cena(cenaNome, W, cenaH)}</div>` : ''}
+    ${chamada ? `<div class="chamada">${estiloChamada === 'botao' ? `<span class="botao">${fmt(chamada)}</span>` : `<span class="chamada-texto">${fmt(chamada)}</span>`}</div>` : ''}
+    <div class="rodape${d.fonte ? '' : ' centro'}">${d.fonte ? `<span class="fonte">Fonte: ${esc(d.fonte)}</span>` : ''}${arroba(px(34))}</div>
   </div>
-  ${rodape(d.chamada || cta || 'Resumo completo no link da bio →')}
-  ${faixa(18)}
 </div>`;
 }
 
 /* ------------------------------------------------------------------ */
-/* Modelos                                                             */
+/* Presets: cada modelo preenche o motor com os padrões do guia        */
 /* ------------------------------------------------------------------ */
-
-const modelos = {
-  /* ---------------- Redes sociais: notícia ---------------- */
-  'feed-noticia': {
-    nome: 'Post de notícia (feed)',
-    grupo: 'Notícia',
-    largura: 1080, altura: 1350,
-    obrigatorios: ['titulo'],
-    campos: { categoria: 'cidade | servico | comercio | cultura | seguranca', titulo: 'manchete (use *palavra* para destacar)', resumo: 'texto curto (opcional)', fonte: 'veículo original (opcional)', data: 'dd/mm/aaaa (padrão: hoje; false esconde)', foto: 'arquivo ou URL (opcional)', chamada: 'texto do rodapé (padrão: Resumo completo no link da bio →)' },
-    render: (d) => capaNoticia(d),
-  },
-
-  'feed-urgente': {
-    nome: 'Urgente / plantão (feed)',
-    grupo: 'Notícia',
-    largura: 1080, altura: 1350,
-    obrigatorios: ['titulo'],
-    campos: { titulo: 'manchete', resumo: 'opcional', selo: 'padrão: URGENTE (ex.: AGORA, ATUALIZAÇÃO)', foto: 'opcional', fonte: 'opcional', data: 'opcional', chamada: 'opcional' },
-    render(d) {
-      const f = !!d.foto;
-      return `<style>
-.peca{background:var(--vermelho);color:#fff}
-.topo{height:128px;padding:0 72px;display:flex;align-items:center;justify-content:space-between;flex:none}
-.topo .data{font-size:26px;font-weight:700;opacity:.85}
-.img{position:relative;height:560px;flex:none;margin:0 72px;border-radius:28px;overflow:hidden;border:6px solid #fff}
-.corpo{flex:1;min-height:0;padding:${f ? '44px' : '30px'} 72px 44px;display:flex;flex-direction:column;gap:30px}
-.selo{flex:none;align-self:flex-start;display:flex;align-items:center;gap:18px;background:#fff;color:var(--vermelho);font-size:42px;font-weight:900;letter-spacing:.14em;padding:14px 34px 14px 26px;border-radius:14px}
-.selo i{width:22px;height:22px;border-radius:50%;background:var(--vermelho);box-shadow:0 0 0 8px rgba(217,58,43,.25)}
-h1{flex:0 1 auto;min-height:0;font-size:${f ? 74 : 104}px}
-.resumo{flex:none;font-size:32px;line-height:1.45;font-weight:600;opacity:.94;display:-webkit-box;-webkit-line-clamp:${f ? 2 : 5};-webkit-box-orient:vertical;overflow:hidden}
-.fonte{flex:none;margin-top:auto;font-size:22px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;opacity:.85}
-${RODAPE_CSS}
-</style>
-<div class="peca escuro">
-  <div class="topo">${marca(34, true)}<span class="data">${dataDe(d)}</span></div>
-  ${f ? `<div class="img">${foto(d.foto)}</div>` : ''}
-  <div class="corpo">
-    <span class="selo"><i></i>${esc(d.selo || 'Urgente').toUpperCase()}</span>
-    <h1 class="ajusta" data-min="44">${fmt(d.titulo)}</h1>
-    ${d.resumo ? `<p class="resumo">${fmt(d.resumo)}</p>` : ''}
-    ${d.fonte ? `<p class="fonte">Fonte: ${esc(d.fonte)}</p>` : ''}
-  </div>
-  ${rodape(d.chamada || 'Acompanhe pelo perfil →')}
-  ${faixa(18)}
-</div>`;
-    },
-  },
-
-  'story-noticia': {
-    nome: 'Story de notícia (também serve para status do WhatsApp e capa de Reels)',
-    grupo: 'Notícia',
-    largura: 1080, altura: 1920,
-    obrigatorios: ['titulo'],
-    campos: { categoria: 'opcional', titulo: 'manchete', resumo: 'opcional', foto: 'opcional', chamada: 'padrão: Toque no link e leia o resumo', selo: 'troca a etiqueta (ex.: URGENTE)', data: 'opcional' },
-    render(d) {
-      const c = cat(d.categoria);
-      const f = !!d.foto;
-      const urgente = d.selo && semAcento(d.selo).includes('urgente');
-      return `<style>
-.peca{background:${urgente ? 'var(--vermelho)' : 'var(--verde-escuro)'};color:#fff}
-.topo{flex:none;padding:170px 80px 0;display:flex;align-items:center;justify-content:space-between}
-.topo .data{font-size:28px;font-weight:700;opacity:.8}
-.img{position:relative;flex:none;height:620px;margin:48px 80px 0;border-radius:32px;overflow:hidden}
-.corpo{flex:1;min-height:0;padding:${f ? '48px' : '90px'} 80px 40px;display:flex;flex-direction:column;gap:32px}
-.etiqueta{flex:none;font-size:32px}
-h1{flex:0 1 auto;min-height:0;font-size:${f ? 84 : 120}px}
-.resumo{flex:none;font-size:38px;line-height:1.45;font-weight:600;opacity:.9;display:-webkit-box;-webkit-line-clamp:${f ? 2 : 6};-webkit-box-orient:vertical;overflow:hidden}
-.cta{flex:none;margin:0 80px 280px;align-self:flex-start;background:var(--amarelo);color:var(--verde-escuro);font-size:40px;font-weight:800;padding:26px 44px;border-radius:999px}
-.arroba{position:absolute;left:0;right:0;bottom:150px;text-align:center;font-size:30px;font-weight:700;opacity:.8}
-</style>
-<div class="peca escuro ${c.classe}">
-  ${faixa(20)}
-  <div class="topo">${marca(42, true)}<span class="data">${dataDe(d)}</span></div>
-  ${f ? `<div class="img">${foto(d.foto)}</div>` : ''}
-  <div class="corpo">
-    <span class="etiqueta" ${urgente ? 'style="background:#fff;color:var(--vermelho)"' : ''}>${esc(d.selo || d.etiqueta || c.rotulo)}</span>
-    <h1 class="ajusta" data-min="52">${fmt(d.titulo)}</h1>
-    ${d.resumo ? `<p class="resumo">${fmt(d.resumo)}</p>` : ''}
-  </div>
-  <span class="cta">${fmt(d.chamada || 'Toque no link e leia o resumo ↑')}</span>
-  <span class="arroba">${MARCA.arroba}</span>
-  <div style="position:absolute;left:0;right:0;bottom:0">${faixa(20)}</div>
-</div>`;
-    },
-  },
-
-  carrossel: {
-    nome: 'Carrossel (capa + slides + slide final)',
-    grupo: 'Notícia',
-    largura: 1080, altura: 1350,
-    obrigatorios: ['titulo', 'slides'],
-    campos: { categoria: 'opcional', titulo: 'manchete da capa', resumo: 'opcional na capa', foto: 'foto da capa (opcional)', slides: 'lista de { "titulo": "...", "texto": "..." }', final: 'false para não gerar o slide "Siga"', fonte: 'opcional' },
-    render(d) {
-      const c = cat(d.categoria);
-      const slides = d.slides || [];
-      const total = slides.length + 1 + (d.final === false ? 0 : 1);
-      const paginas = [capaNoticia(d, { cta: 'Arrasta pro lado →' })];
-      slides.forEach((s, i) => {
-        const n = i + 2;
-        paginas.push(`<style>
-.topo{height:128px;padding:0 72px;display:flex;align-items:center;justify-content:space-between;flex:none}
-.num{font-size:26px;font-weight:800;padding:8px 22px;border-radius:999px;background:var(--cor);color:var(--cor-texto)}
-.corpo{flex:1;min-height:0;padding:30px 72px 40px;display:flex;flex-direction:column;gap:36px}
-h2{flex:none;font-size:68px;padding-left:28px;border-left:14px solid var(--cor)}
-.texto{flex:0 1 auto;min-height:0;font-size:40px;line-height:1.5;font-weight:500}
-.texto b,.texto strong{font-weight:800}
-.seta{flex:none;height:110px;padding:0 72px;display:flex;align-items:center;justify-content:flex-end;font-size:26px;font-weight:800;color:var(--texto-suave)}
-</style>
-<div class="peca ${c.classe}">
-  ${faixa(18)}
-  <div class="topo">${marca(30)}<span class="num">${n}/${total}</span></div>
-  <div class="corpo">
-    ${s.titulo ? `<h2>${fmt(s.titulo)}</h2>` : ''}
-    <p class="texto ajusta" data-min="26">${fmt(s.texto || '')}</p>
-  </div>
-  <div class="seta">${n < total ? 'Arrasta →' : MARCA.arroba}</div>
-</div>`);
-      });
-      if (d.final !== false) paginas.push(modelos['feed-siga'].render(d));
-      return paginas;
-    },
-  },
-
-  'feed-siga': {
-    nome: 'Slide final "Siga o perfil" (usado no fim do carrossel)',
-    grupo: 'Institucional',
-    largura: 1080, altura: 1350,
-    obrigatorios: [],
-    campos: { texto: 'opcional (padrão: descrição do perfil)' },
-    render: (d) => `<style>
-.peca{background:var(--verde-escuro);color:#fff;align-items:center;justify-content:center;text-align:center;gap:52px;padding:0 100px}
-.selo-io{width:260px;height:260px;border-radius:64px;background:var(--amarelo);color:var(--verde-escuro);display:grid;place-items:center;font-size:120px;font-weight:900;letter-spacing:-.03em}
-h2{font-size:76px}
-p{font-size:34px;line-height:1.5;font-weight:600;opacity:.88;max-width:22ch}
-.botao{background:var(--amarelo);color:var(--verde-escuro);font-size:38px;font-weight:800;padding:26px 52px;border-radius:999px}
-.fx{position:absolute;left:0;right:0;bottom:0}
-</style>
-<div class="peca escuro">
-  <div class="selo-io">IO</div>
-  <h2>Siga o <span class="destaque">${MARCA.nome}</span></h2>
-  <p>${fmt(d.texto_final || MARCA.descricao)}</p>
-  <span class="botao">${MARCA.arroba}</span>
-  <div class="fx">${faixa(22)}</div>
-</div>`,
-  },
-
-  /* ---------------- Redes sociais: serviço, agenda, frase, nota ---------------- */
-  'feed-servico': {
-    nome: 'Utilidade pública / serviço (feed)',
-    grupo: 'Serviço',
-    largura: 1080, altura: 1350,
-    obrigatorios: ['titulo', 'itens'],
-    campos: { titulo: 'assunto', selo: 'padrão: Utilidade pública', itens: 'lista de { "rotulo": "Telefone", "valor": "0800 ..." }', observacao: 'opcional', categoria: 'padrão: servico', data: 'opcional' },
-    render(d) {
-      const c = cat(d.categoria, 'servico');
-      return `<style>
-.topo{height:128px;padding:0 72px;display:flex;align-items:center;justify-content:space-between;flex:none}
-.topo .data{font-size:26px;font-weight:700;color:var(--texto-suave)}
-.cabeca{flex:none;background:var(--cor);color:var(--cor-texto);padding:44px 72px 50px;display:flex;flex-direction:column;gap:18px;max-height:440px}
-.cabeca .selo{display:flex;align-items:center;gap:14px;font-size:26px;font-weight:800;text-transform:uppercase;letter-spacing:.1em}
-.cabeca h1{font-size:80px;min-height:0;flex:0 1 auto}
-.lista{flex:0 1 auto;min-height:0;padding:20px 72px 0;font-size:44px}
-.lista li{list-style:none;display:flex;flex-direction:column;gap:.15em;padding:.5em 0;border-bottom:3px solid var(--linha)}
-.lista li:last-child{border-bottom:0}
-.rot{font-size:.55em;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:var(--laranja)}
-.val{font-weight:800;line-height:1.2}
-.obs{flex:none;margin:auto 72px 36px;font-size:26px;line-height:1.45;font-weight:600;color:var(--texto-suave);padding:20px 26px;background:var(--tinta);border-left:8px solid var(--laranja);border-radius:0 16px 16px 0}
-${RODAPE_CSS}
-</style>
-<div class="peca ${c.classe}">
-  <div class="topo">${marca(34)}<span class="data">${dataDe(d)}</span></div>
-  <div class="cabeca">
-    <span class="selo">${icone('servico', 34, 'currentColor', 2.4)}${esc(d.selo || 'Utilidade pública')}</span>
-    <h1 class="ajusta" data-min="44">${fmt(d.titulo)}</h1>
-  </div>
-  <ul class="lista ajusta" data-min="24">${(d.itens || []).map((i) => `<li><span class="rot">${esc(i.rotulo)}</span><span class="val">${fmt(i.valor)}</span></li>`).join('')}</ul>
-  ${d.observacao ? `<p class="obs">${fmt(d.observacao)}</p>` : '<div style="margin-top:auto"></div>'}
-  ${rodape(d.chamada || 'Salve e mande pra quem precisa →')}
-  ${faixa(18)}
-</div>`;
-    },
-  },
-
-  'feed-agenda': {
-    nome: 'Agenda / evento (feed)',
-    grupo: 'Agenda',
-    largura: 1080, altura: 1350,
-    obrigatorios: ['titulo', 'data'],
-    campos: { titulo: 'nome do evento', data: 'dd/mm (vira o bloco de data) ou texto livre, ex.: 28 a 30/11', dia_semana: 'ex.: Sábado', hora: 'opcional', local: 'opcional', entrada: 'ex.: Gratuita / R$ 20', descricao: 'opcional', foto: 'opcional', selo: 'padrão: Agenda', categoria: 'padrão: cultura' },
-    render(d) {
-      const c = cat(d.categoria, 'cultura');
-      const m = String(d.data).match(/^(\d{1,2})\/(\d{1,2})/);
-      const dia = m ? m[1].padStart(2, '0') : '';
-      const mes = m ? MESES[Number(m[2]) - 1] : '';
-      const f = !!d.foto;
-      const linhas = [['Quando', [d.dia_semana, m ? null : d.data, d.hora].filter(Boolean).join(' · ')], ['Onde', d.local], ['Entrada', d.entrada]].filter((l) => l[1]);
-      return `<style>
-.topo{height:128px;padding:0 72px;display:flex;align-items:center;justify-content:space-between;flex:none}
-.topo .selo{font-size:26px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:var(--laranja);display:flex;align-items:center;gap:12px}
-.cabeca{position:relative;flex:none;height:${f ? 520 : 400}px;background:var(--cor);${f ? '' : 'background-image:repeating-linear-gradient(135deg,rgba(255,255,255,.18) 0 22px,transparent 22px 44px);'}}
-.cartao{position:absolute;left:72px;bottom:-70px;z-index:2;background:#fff;border-top:14px solid var(--laranja);border-radius:0 0 24px 24px;padding:22px 40px 26px;box-shadow:0 18px 40px rgba(20,36,27,.18);text-align:center;min-width:240px}
-.cartao .dia{display:block;font-size:${m ? 150 : 76}px;font-weight:900;line-height:1;color:var(--verde-escuro);letter-spacing:-.04em}
-.cartao .mes{display:block;font-size:34px;font-weight:800;text-transform:uppercase;letter-spacing:.12em;color:var(--texto-suave);margin-top:6px}
-.corpo{flex:1;min-height:0;padding:${f ? 110 : 110}px 72px 30px;display:flex;flex-direction:column;gap:28px}
-h1{flex:0 1 auto;min-height:0;font-size:78px;padding-left:28px;border-left:14px solid var(--cor)}
-.info{flex:none;display:flex;flex-direction:column}
-.info div{display:flex;gap:28px;align-items:baseline;padding:16px 0;border-top:3px solid var(--linha)}
-.info b{flex:none;width:170px;font-size:22px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:var(--laranja)}
-.info span{font-size:34px;font-weight:700}
-.desc{flex:none;font-size:28px;line-height:1.45;font-weight:500;color:var(--texto-suave);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
-${RODAPE_CSS}
-</style>
-<div class="peca ${c.classe}">
-  <div class="topo">${marca(34)}<span class="selo">${icone('agenda', 30, 'currentColor', 2.4)}${esc(d.selo || 'Agenda')}</span></div>
-  <div class="cabeca">${f ? foto(d.foto) : ''}
-    <div class="cartao">${m ? `<span class="dia">${dia}</span><span class="mes">${mes}${d.dia_semana ? ' · ' + esc(d.dia_semana).slice(0, 3) : ''}</span>` : `<span class="dia">${esc(d.data)}</span>`}</div>
-  </div>
-  <div class="corpo">
-    <h1 class="ajusta" data-min="40">${fmt(d.titulo)}</h1>
-    ${linhas.length ? `<div class="info">${linhas.map((l) => `<div><b>${l[0]}</b><span>${fmt(l[1])}</span></div>`).join('')}</div>` : ''}
-    ${d.descricao ? `<p class="desc">${fmt(d.descricao)}</p>` : ''}
-  </div>
-  ${rodape(d.chamada || 'Marca quem vai com você →')}
-  ${faixa(18)}
-</div>`;
-    },
-  },
-
-  'feed-frase': {
-    nome: 'Frase / declaração (feed)',
-    grupo: 'Notícia',
-    largura: 1080, altura: 1350,
-    obrigatorios: ['frase', 'autor'],
-    campos: { frase: 'a citação, sem aspas', autor: 'quem disse', cargo: 'opcional', foto: 'foto do rosto (opcional, sai redonda)', contexto: 'opcional (ex.: sobre a reforma da praça)', categoria: 'opcional' },
-    render(d) {
-      const c = cat(d.categoria);
-      return `<style>
-.peca{background:var(--tinta)}
-.topo{height:128px;padding:0 72px;display:flex;align-items:center;justify-content:space-between;flex:none}
-.topo .etiqueta{font-size:24px}
-.aspas{flex:none;height:220px;padding:0 60px;font-size:380px;line-height:1;font-weight:900;color:var(--laranja);font-family:Georgia,serif}
-.frase{flex:0 1 auto;min-height:0;margin:0 72px;font-size:88px;line-height:1.2;font-weight:800;letter-spacing:-.02em}
-.autor{flex:none;margin:auto 72px 56px;display:flex;align-items:center;gap:30px;padding-top:34px;border-top:4px solid var(--linha)}
-.rosto{flex:none;position:relative;width:150px;height:150px;border-radius:50%;overflow:hidden;border:6px solid var(--cor)}
-.quem b{display:block;font-size:40px;font-weight:800;color:var(--verde-escuro)}
-.quem span{display:block;font-size:27px;font-weight:600;color:var(--texto-suave);margin-top:4px}
-${RODAPE_CSS}
-</style>
-<div class="peca ${c.classe}">
-  <div class="topo">${marca(34)}${d.categoria ? `<span class="etiqueta">${esc(c.rotulo)}</span>` : ''}</div>
-  <div class="aspas">“</div>
-  <p class="frase ajusta" data-min="36">${fmt(d.frase)}</p>
-  <div class="autor">
-    ${d.foto ? `<div class="rosto">${foto(d.foto)}</div>` : ''}
-    <div class="quem"><b>${esc(d.autor)}</b>${d.cargo || d.contexto ? `<span>${esc([d.cargo, d.contexto].filter(Boolean).join(' · '))}</span>` : ''}</div>
-  </div>
-  ${rodape(d.chamada || 'O que você acha? Comenta aí →')}
-  ${faixa(18)}
-</div>`;
-    },
-  },
-
-  'feed-nota': {
-    nome: 'Nota / comunicado / nota de pesar (feed)',
-    grupo: 'Institucional',
-    largura: 1080, altura: 1350,
-    obrigatorios: ['texto'],
-    campos: { selo: 'padrão: Nota (ex.: Comunicado, Nota de pesar, Errata)', titulo: 'opcional', texto: 'corpo da nota', assinatura: 'padrão: Equipe Igarassu Ordinário', data: 'opcional', sobrio: 'true para nota de pesar (sem as cores vibrantes)' },
-    render(d) {
-      const sobrio = !!d.sobrio;
-      return `<style>
-.topo{height:150px;padding:0 72px;display:flex;align-items:center;justify-content:space-between;flex:none}
-.topo .data{font-size:26px;font-weight:700;color:var(--texto-suave)}
-.corpo{flex:1;min-height:0;padding:40px 72px 40px;display:flex;flex-direction:column;gap:36px}
-.selo{flex:none;font-size:30px;font-weight:800;text-transform:uppercase;letter-spacing:.14em;color:${sobrio ? 'var(--texto-suave)' : 'var(--laranja)'};padding-left:22px;border-left:10px solid ${sobrio ? 'var(--texto)' : 'var(--laranja)'}}
-h1{flex:none;font-size:64px;${sobrio ? 'color:var(--texto);' : 'color:var(--verde-escuro);'}}
-.texto{flex:0 1 auto;min-height:0;font-size:42px;line-height:1.55;font-weight:500}
-.texto p+p{margin-top:.7em}
-.ass{flex:none;margin-top:auto;font-size:30px;font-weight:800;color:var(--verde-escuro)}
-.linha{flex:none;height:${sobrio ? 10 : 0}px;background:var(--texto)}
-</style>
-<div class="peca">
-  ${sobrio ? '<div class="linha"></div>' : faixa(18)}
-  <div class="topo">${marca(34)}<span class="data">${dataDe(d)}</span></div>
-  <div class="corpo">
-    <span class="selo">${esc(d.selo || 'Nota')}</span>
-    ${d.titulo ? `<h1>${fmt(d.titulo)}</h1>` : ''}
-    <div class="texto ajusta" data-min="24">${String(d.texto).split(/\n\s*\n/).map((p) => `<p>${fmt(p)}</p>`).join('')}</div>
-    <p class="ass">${esc(d.assinatura || 'Equipe ' + MARCA.nome)}</p>
-  </div>
-  ${sobrio ? '<div class="linha"></div>' : faixa(18)}
-</div>`;
-    },
-  },
-
-  /* ---------------- Publicidade ---------------- */
-  'publi-feed': {
-    nome: 'Publicidade de anunciante (feed)',
-    grupo: 'Publicidade',
-    largura: 1080, altura: 1350,
-    obrigatorios: ['anunciante', 'titulo'],
-    campos: { anunciante: 'nome do comércio', titulo: 'oferta ou chamada principal', texto: 'opcional', preco: 'opcional (ex.: R$ 19,90)', preco_antigo: 'opcional', contato: 'lista de linhas (WhatsApp, endereço, @)', chamada: 'padrão: Chama no WhatsApp', foto: 'foto do produto/loja (opcional)', logo: 'logo do anunciante (opcional)', selo: 'padrão: Publicidade' },
-    render(d) {
-      const f = !!d.foto;
-      const contato = lista(d.contato);
-      return `<style>
-.topo{height:120px;padding:0 64px;display:flex;align-items:center;justify-content:space-between;flex:none}
-.publi{font-size:22px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--texto-suave);border:3px solid var(--linha);padding:8px 20px;border-radius:999px}
-.img{position:relative;flex:none;height:${f ? 520 : 440}px;margin:0 56px;border-radius:32px;overflow:hidden;background:var(--laranja);color:#fff;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:28px;padding:40px}
-.img .nome{position:relative;font-size:104px;font-weight:900;letter-spacing:-.03em;text-align:center;line-height:1.02;max-width:100%}
-.logo{position:relative;max-height:220px;max-width:70%;object-fit:contain}
-.logo-canto{position:absolute;right:28px;top:28px;width:150px;height:150px;border-radius:50%;background:#fff;object-fit:contain;padding:14px;box-shadow:0 8px 24px rgba(0,0,0,.18)}
-.corpo{flex:1;min-height:0;padding:40px 72px 30px;display:flex;flex-direction:column;gap:22px}
-.anun{flex:none;font-size:26px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--laranja)}
-h1{flex:0 1 auto;min-height:0;font-size:76px}
-.texto{flex:none;font-size:30px;line-height:1.45;font-weight:500;color:var(--texto-suave);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
-.preco{flex:none;display:flex;align-items:baseline;gap:24px;margin-top:4px}
-.preco s{font-size:34px;font-weight:700;color:var(--texto-suave)}
-.preco b{font-size:84px;font-weight:900;letter-spacing:-.03em;color:var(--verde-escuro);background:var(--amarelo);padding:0 18px;border-radius:14px;line-height:1.15}
-.rod{flex:none;min-height:150px;background:var(--laranja);color:#2B1500;padding:24px 64px;display:flex;align-items:center;justify-content:space-between;gap:30px}
-.rod .cta{flex:none;background:var(--verde-escuro);color:#fff;font-size:30px;font-weight:800;padding:20px 34px;border-radius:999px}
-.rod .ct{font-size:25px;font-weight:700;line-height:1.45;text-align:right}
-</style>
-<div class="peca">
-  <div class="topo">${marca(28)}<span class="publi">${esc(d.selo || 'Publicidade')}</span></div>
-  <div class="img">
-    ${f ? foto(d.foto) + (d.logo ? `<img class="logo-canto" src="${d.logo}">` : '') : d.logo ? `<img class="logo" src="${d.logo}"><span class="nome ajusta" data-min="40" style="font-size:64px">${esc(d.anunciante)}</span>` : `<span class="nome ajusta" data-min="40">${esc(d.anunciante)}</span>`}
-  </div>
-  <div class="corpo">
-    ${f ? `<span class="anun">${esc(d.anunciante)}</span>` : ''}
-    <h1 class="ajusta" data-min="40">${fmt(d.titulo)}</h1>
-    ${d.texto ? `<p class="texto">${fmt(d.texto)}</p>` : ''}
-    ${d.preco ? `<div class="preco">${d.preco_antigo ? `<s>${esc(d.preco_antigo)}</s>` : ''}<b>${esc(d.preco)}</b></div>` : ''}
-  </div>
-  <div class="rod"><span class="cta">${fmt(d.chamada || 'Chama no WhatsApp')}</span><span class="ct">${contato.slice(0, 3).map(fmt).join('<br>')}</span></div>
-  ${faixa(18)}
-</div>`;
-    },
-  },
-
-  'publi-story': {
-    nome: 'Publicidade de anunciante (story)',
-    grupo: 'Publicidade',
-    largura: 1080, altura: 1920,
-    obrigatorios: ['anunciante', 'titulo'],
-    campos: { anunciante: 'nome do comércio', titulo: 'oferta', texto: 'opcional', preco: 'opcional', preco_antigo: 'opcional', contato: 'lista de linhas', chamada: 'padrão: Chama no WhatsApp', foto: 'opcional', logo: 'opcional', selo: 'padrão: Publicidade' },
-    render(d) {
-      const f = !!d.foto;
-      const contato = lista(d.contato);
-      return `<style>
-.peca{background:var(--laranja);color:#2B1500}
-.topo{flex:none;padding:170px 80px 0;display:flex;align-items:center;justify-content:space-between}
-.publi{font-size:24px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;background:rgba(255,255,255,.9);color:var(--texto);padding:10px 22px;border-radius:999px}
-.img{position:relative;flex:none;height:${f ? 560 : 0}px;margin:40px 80px 0;border-radius:36px;overflow:hidden;border:8px solid #fff;${f ? '' : 'display:none'}}
-.logo-canto{position:absolute;right:26px;top:26px;width:160px;height:160px;border-radius:50%;background:#fff;object-fit:contain;padding:14px}
-.corpo{flex:1;min-height:0;padding:${f ? 40 : 120}px 80px 30px;display:flex;flex-direction:column;gap:24px}
-.logo{flex:none;align-self:flex-start;max-height:200px;max-width:60%;object-fit:contain;background:#fff;border-radius:24px;padding:16px}
-.anun{flex:none;font-size:34px;font-weight:900;letter-spacing:.1em;text-transform:uppercase}
-h1{flex:0 1 auto;min-height:0;font-size:${f ? 90 : 120}px;color:#fff}
-.texto{flex:none;font-size:36px;line-height:1.45;font-weight:600;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
-.preco{flex:none;display:flex;align-items:baseline;gap:24px}
-.preco s{font-size:40px;font-weight:700;opacity:.75}
-.preco b{font-size:100px;font-weight:900;letter-spacing:-.03em;color:var(--verde-escuro);background:var(--amarelo);padding:0 22px;border-radius:16px;line-height:1.15}
-.base{flex:none;margin:0 80px 250px;display:flex;flex-direction:column;gap:24px;align-items:flex-start}
-.cta{background:var(--verde-escuro);color:#fff;font-size:42px;font-weight:800;padding:28px 46px;border-radius:999px}
-.ct{font-size:32px;font-weight:700;line-height:1.45}
-.fx{position:absolute;left:0;right:0;bottom:0}
-.marca-pe{position:absolute;left:0;right:0;bottom:120px;display:flex;justify-content:center}
-</style>
-<div class="peca">
-  ${faixa(20)}
-  <div class="topo"><span class="publi">${esc(d.selo || 'Publicidade')}</span></div>
-  <div class="img">${f ? foto(d.foto) + (d.logo ? `<img class="logo-canto" src="${d.logo}">` : '') : ''}</div>
-  <div class="corpo">
-    ${!f && d.logo ? `<img class="logo" src="${d.logo}">` : ''}
-    <span class="anun">${esc(d.anunciante)}</span>
-    <h1 class="ajusta" data-min="50">${fmt(d.titulo)}</h1>
-    ${d.texto ? `<p class="texto">${fmt(d.texto)}</p>` : ''}
-    ${d.preco ? `<div class="preco">${d.preco_antigo ? `<s>${esc(d.preco_antigo)}</s>` : ''}<b>${esc(d.preco)}</b></div>` : ''}
-  </div>
-  <div class="base"><span class="cta">${fmt(d.chamada || 'Chama no WhatsApp')}</span>${contato.length ? `<span class="ct">${contato.slice(0, 3).map(fmt).join('<br>')}</span>` : ''}</div>
-  <div class="marca-pe">${marca(30)}</div>
-  <div class="fx">${faixa(20)}</div>
-</div>`;
-    },
-  },
-
-  'publi-anuncie': {
-    nome: 'Chamada "Anuncie aqui" (feed)',
-    grupo: 'Publicidade',
-    largura: 1080, altura: 1350,
-    obrigatorios: [],
-    campos: { titulo: 'padrão: Seu comércio na frente de quem vive, compra e circula em Igarassu', itens: 'lista do que o anunciante ganha', numeros: 'lista de { "valor": "12 mil", "rotulo": "seguidores" } (opcional)', chamada: 'padrão: Chama no direct' },
-    render(d) {
-      const itens = lista(d.itens).length ? lista(d.itens) : ['Post no feed e nos stories', 'Banner no site do Igarassu Ordinário', 'Divulgação de promoção e evento'];
-      const cores = ['var(--verde)', 'var(--amarelo)', 'var(--laranja)', 'var(--vermelho)'];
-      return `<style>
-.peca{background:var(--verde-escuro);color:#fff}
-.topo{height:150px;padding:0 72px;display:flex;align-items:center;justify-content:space-between;flex:none}
-.topo .sel{font-size:24px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--amarelo);display:flex;gap:12px;align-items:center}
-.corpo{flex:1;min-height:0;padding:20px 72px 40px;display:flex;flex-direction:column;justify-content:center;gap:60px}
-h1{flex:0 1 auto;min-height:0;font-size:112px}
-ul{flex:none;display:flex;flex-direction:column;gap:30px}
-li{list-style:none;display:flex;align-items:center;gap:26px;font-size:42px;font-weight:700}
-li i{flex:none;width:28px;height:28px;border-radius:8px}
-.nums{flex:none;display:flex;gap:24px}
-.nums div{flex:1;background:rgba(255,255,255,.08);border-radius:20px;padding:22px 26px;border-top:8px solid var(--amarelo)}
-.nums b{display:block;font-size:58px;font-weight:900;color:var(--amarelo);letter-spacing:-.02em}
-.nums span{font-size:24px;font-weight:700;opacity:.85}
-.cta{flex:none;margin:0 72px 60px;align-self:flex-start;background:var(--amarelo);color:var(--verde-escuro);font-size:38px;font-weight:800;padding:26px 46px;border-radius:999px}
-</style>
-<div class="peca escuro">
-  <div class="topo">${marca(34, true)}<span class="sel">${icone('anuncie', 32, 'currentColor', 2.4)}Anuncie</span></div>
-  <div class="corpo">
-    <h1 class="ajusta" data-min="48">${fmt(d.titulo || 'Seu comércio na frente de quem vive, compra e circula em *Igarassu*')}</h1>
-    <ul>${itens.map((t, i) => `<li><i style="background:${cores[i % 4]}"></i>${fmt(t)}</li>`).join('')}</ul>
-    ${d.numeros && d.numeros.length ? `<div class="nums">${d.numeros.slice(0, 3).map((n) => `<div><b>${esc(n.valor)}</b><span>${esc(n.rotulo)}</span></div>`).join('')}</div>` : ''}
-  </div>
-  <span class="cta">${fmt(d.chamada || 'Chama no direct ' + MARCA.arroba)}</span>
-  ${faixa(22)}
-</div>`;
-    },
-  },
-
-  /* ---------------- Banners do site ---------------- */
-  'banner-300x250': {
-    nome: 'Banner do site 300×250 (lateral)',
-    grupo: 'Banner do site',
-    largura: 300, altura: 250, escala: 2,
-    obrigatorios: ['anunciante', 'titulo'],
-    campos: { anunciante: 'nome', titulo: 'chamada curta', chamada: 'texto do botão (padrão: Saiba mais)', fundo: 'laranja | verde | amarelo | vermelho | branco', foto: 'opcional (fica no fundo)', logo: 'opcional' },
-    render: (d) => banner(d, 'ret'),
-  },
-  'banner-728x90': {
-    nome: 'Banner do site 728×90 (horizontal, computador)',
-    grupo: 'Banner do site',
-    largura: 728, altura: 90, escala: 2,
-    obrigatorios: ['anunciante', 'titulo'],
-    campos: { anunciante: 'nome', titulo: 'chamada curta', chamada: 'texto do botão', fundo: 'laranja | verde | amarelo | vermelho | branco', logo: 'opcional' },
-    render: (d) => banner(d, 'hor'),
-  },
-  'banner-320x100': {
-    nome: 'Banner do site 320×100 (celular)',
-    grupo: 'Banner do site',
-    largura: 320, altura: 100, escala: 2,
-    obrigatorios: ['anunciante', 'titulo'],
-    campos: { anunciante: 'nome', titulo: 'chamada curta', chamada: 'texto do botão', fundo: 'laranja | verde | amarelo | vermelho | branco', logo: 'opcional' },
-    render: (d) => banner(d, 'cel'),
-  },
-
-  /* ---------------- Institucional ---------------- */
-  'og-materia': {
-    nome: 'Imagem de compartilhamento de link (WhatsApp/Facebook) 1200×630',
-    grupo: 'Institucional',
-    largura: 1200, altura: 630,
-    obrigatorios: ['titulo'],
-    campos: { categoria: 'opcional', titulo: 'manchete', data: 'opcional' },
-    render(d) {
-      const c = cat(d.categoria);
-      return `<style>
-.peca{flex-direction:row}
-.barra{flex:none;width:28px;background:var(--cor)}
-.conteudo{flex:1;min-width:0;display:flex;flex-direction:column;gap:30px;padding:56px 70px 40px 60px}
-.topo{flex:none;display:flex;justify-content:space-between;align-items:center}
-.topo .data{font-size:22px;font-weight:700;color:var(--texto-suave)}
-.etiqueta{flex:none;font-size:22px}
-h1{flex:0 1 auto;min-height:0;font-size:68px}
-.pe{flex:none;margin-top:auto;font-size:22px;font-weight:700;color:var(--texto-suave)}
-.fx{position:absolute;left:0;right:0;bottom:0}
-</style>
-<div class="peca ${c.classe}">
-  <div class="barra"></div>
-  <div class="conteudo">
-    <div class="topo">${marca(32)}<span class="data">${dataDe(d)}</span></div>
-    <span class="etiqueta">${esc(d.etiqueta || c.rotulo)}</span>
-    <h1 class="ajusta" data-min="36">${fmt(d.titulo)}</h1>
-    <p class="pe">${MARCA.site}</p>
-  </div>
-  <div class="fx">${faixa(14)}</div>
-</div>`;
-    },
-  },
-
-  'capa-destaque': {
-    nome: 'Capas dos destaques do Instagram (uma imagem por item)',
-    grupo: 'Institucional',
-    largura: 1080, altura: 1920,
-    obrigatorios: [],
-    campos: { itens: 'lista de { "icone": "noticias|servico|agenda|seguranca|comercio|cultura|anuncie|cidade|contato|urgente", "cor": "verde-escuro|verde|amarelo|laranja|vermelho", "nome": "nome do arquivo" }' },
-    render(d) {
-      const padrao = [
-        { icone: 'noticias', cor: 'verde-escuro', nome: 'noticias' },
-        { icone: 'urgente', cor: 'vermelho', nome: 'urgente' },
-        { icone: 'servico', cor: 'verde', nome: 'servico' },
-        { icone: 'agenda', cor: 'amarelo', nome: 'agenda' },
-        { icone: 'comercio', cor: 'laranja', nome: 'comercio' },
-        { icone: 'anuncie', cor: 'verde-escuro', nome: 'anuncie' },
-      ];
-      return (d.itens || padrao).map((it) => {
-        const claro = ['amarelo', 'verde', 'laranja'].includes(it.cor);
-        const tinta = claro ? 'var(--texto)' : (it.cor === 'verde-escuro' ? 'var(--amarelo)' : '#fff');
-        return { sufixo: it.nome || it.icone, html: `<style>
-.peca{background:var(--${it.cor || 'verde-escuro'});align-items:center;justify-content:center}
-.fx{position:absolute;left:0;right:0;bottom:0}
-</style>
-<div class="peca">${icone(it.icone, 460, tinta, 1.6)}<div class="fx">${faixa(24)}</div></div>` };
-      });
-    },
-  },
-
-  perfil: {
-    nome: 'Foto de perfil (1080×1080, pensada para o recorte redondo)',
-    grupo: 'Institucional',
-    largura: 1080, altura: 1080,
-    obrigatorios: [],
-    campos: { fundo: 'verde-escuro (padrão) | branco' },
-    render(d) {
-      const branco = d.fundo === 'branco';
-      return `<style>
-.peca{background:${branco ? '#fff' : 'var(--verde-escuro)'};align-items:center;justify-content:center;gap:56px}
-.io{font-size:440px;font-weight:900;letter-spacing:-.05em;line-height:.9;color:${branco ? 'var(--verde-escuro)' : 'var(--amarelo)'}}
-.fx{width:560px;border-radius:12px;overflow:hidden}
-</style>
-<div class="peca"><div class="io">IO</div><div class="fx">${faixa(44)}</div></div>`;
-    },
-  },
+const CAMPOS_BASE = {
+  selo: 'texto do selo amarelo (ex.: BAIRRO ORDINÁRIO • AGAMENON MAGALHÃES)',
+  titulo: 'título (sai em maiúsculo); *palavra* fica amarela',
+  subtitulo: 'linha branca logo abaixo do título (ex.: Entregue na quarta, 18/11)',
+  foto: 'arquivo ou URL (opcional) · balao: fala no balão de contorno preto',
+  itens: 'lista com ícone: ["Pintura nova", ...] ou [{ "texto": "...", "icone": "parquinho", "rotulo": "..." }]',
+  texto: 'card creme explicativo; *termos* ficam verdes',
+  gancho: 'card amarelo com a frase de efeito',
+  cena: 'ilustração do pé: coqueiros | praca | feira | igreja | casario | false',
+  chamada: 'texto do botão vermelho (story) ou chamada amarela (feed); false tira',
+  fonte: 'quem publicou a informação (sempre citar)',
+  pesada: 'true para acidente, morte, incêndio: fundo escuro, sem ilustração',
 };
 
-/* ---------------- Banner (três tamanhos) ---------------- */
-function banner(d, tipo) {
-  const fundos = {
-    laranja: ['var(--laranja)', '#2B1500', 'var(--verde-escuro)', '#fff'],
-    verde: ['var(--verde-escuro)', '#fff', 'var(--amarelo)', 'var(--verde-escuro)'],
-    amarelo: ['var(--amarelo)', '#2B2100', 'var(--verde-escuro)', '#fff'],
-    vermelho: ['var(--vermelho)', '#fff', '#fff', 'var(--vermelho)'],
-    branco: ['#fff', 'var(--texto)', 'var(--laranja)', '#2B1500'],
-  };
-  const [bg, fg, btnBg, btnFg] = fundos[d.fundo] || fundos.laranja;
-  const cta = esc(d.chamada || 'Saiba mais');
-  const publi = '<span class="pub">Publicidade</span>';
-  const logo = d.logo ? `<img class="lg" src="${d.logo}">` : '';
-  const comum = `.peca{background:${bg};color:${fg}${d.fundo === 'branco' ? ';box-shadow:inset 0 0 0 1px var(--linha)' : ''}}
-.pub{position:absolute;top:4px;right:6px;font-size:8px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;opacity:.7}
-.an{font-weight:800;text-transform:uppercase;letter-spacing:.08em}
-h1{min-height:0;letter-spacing:-.02em}
-.bt{flex:none;background:${btnBg};color:${btnFg};font-weight:800;border-radius:999px;white-space:nowrap}
-.lg{flex:none;object-fit:contain;background:#fff;border-radius:8px}`;
-  if (tipo === 'ret') {
-    return `<style>${comum}
-.peca{padding:22px 20px 0;gap:8px}
-.an{font-size:11px;flex:none}
-h1{flex:0 1 auto;font-size:30px}
-.bt{align-self:flex-start;font-size:13px;padding:9px 16px;margin:auto 0 16px}
-.lg{position:absolute;right:14px;bottom:20px;width:54px;height:54px;padding:4px}
-.fx{margin:0 -20px}
-${d.foto ? '.foto.escurece::after{background:linear-gradient(180deg,rgba(7,40,22,.15),rgba(7,40,22,.85))}.peca{color:#fff}' : ''}
+const peca = (formato, obrig, extra, montar) => ({
+  ...FORMATOS[formato], obrigatorios: obrig,
+  campos: { ...CAMPOS_BASE, ...extra },
+  render: (d) => arte(montar ? montar(d) : d, d.altura === 1440 && formato === 'feed' ? 'feed-alto' : formato),
+});
+
+const urgente = (d) => ({ pesada: true, selo: 'Urgente', ...d, selo_alerta: true });
+const agenda = (d) => ({
+  selo: 'Agenda ordinária', cena: 'feira', ...d,
+  subtitulo: d.subtitulo || [d.dia_semana, d.data].filter(Boolean).join(', '),
+  itens: d.itens || [
+    d.hora && { rotulo: 'Hora', texto: d.hora, icone: 'relogio' },
+    d.local && { rotulo: 'Onde', texto: d.local, icone: 'local' },
+    d.entrada && { rotulo: 'Entrada', texto: d.entrada, icone: 'dinheiro' },
+  ].filter(Boolean),
+  texto: d.texto || d.descricao,
+});
+const servico = (d) => ({ selo: 'Serviço ordinário', cena: false, ...d, texto: d.texto || d.observacao });
+const frase = (d) => ({
+  selo: 'Falou, tá falado', cena: false, ...d,
+  titulo: `“${d.frase}”`, subtitulo: `— ${[d.autor, d.cargo].filter(Boolean).join(', ')}`,
+  tamanho_titulo: d.tamanho_titulo || 84,
+});
+const nota = (d) => ({ selo: 'Comunicado', cena: false, chamada: false, ...d, pesada: d.pesada || d.sobrio, subtitulo: d.subtitulo || d.assinatura || 'Equipe Igarassu Ordinário' });
+const tuSabia = (d) => ({ selo: 'Tu sabia?', cena: false, chamada: 'Passa pro próximo story que a gente conta 👉', chamada_estilo: 'texto', ...d });
+const publi = (d) => ({
+  cena: d.foto ? false : 'casario', chamada: 'Chama no WhatsApp →', chamada_estilo: 'botao', ...d,
+  selo: d.selo || `Publicidade • ${d.anunciante}`,
+  itens: d.itens || lista(d.contato),
+});
+const anuncie = (d) => ({
+  selo: 'Anuncie no Igarassu Ordinário', cena: 'casario', chamada: 'Chama no direct →', chamada_estilo: 'botao', ...d,
+  titulo: d.titulo || 'Teu comércio na frente de *Igarassu* inteira',
+  itens: d.itens || [{ texto: 'Post no feed e nos stories', icone: 'instagram' }, { texto: 'Banner no site do Igarassu Ordinário', icone: 'noticias' }, { texto: 'Divulgação de promoção e evento', icone: 'megafone' }],
+});
+
+// Sequência (carrossel no feed ou sequência de stories): selo ganha "• n/N"
+function sequencia(d, formato) {
+  const slides = [{ ...d, slides: undefined }, ...(d.slides || [])];
+  const N = slides.length;
+  return slides.map((s, i) => {
+    const base = { selo: d.selo, fonte: d.fonte, pesada: d.pesada, cena: false, ...s };
+    const ultimo = i === N - 1;
+    if (s.chamada === undefined) {
+      base.chamada = formato === 'story'
+        ? (ultimo ? 'Segue a gente pra não perder nada 💚' : 'Passa pro próximo story →')
+        : (ultimo ? 'Salva e manda pra quem precisa 💚' : 'Arrasta pro lado que a gente conta 👉');
+      base.chamada_estilo = formato === 'story' && !ultimo ? 'botao' : 'texto';
+    }
+    if (i === 0 && s.cena === undefined) base.cena = d.cena;
+    base.selo = `${base.selo || 'Igarassu Ordinário'} • ${i + 1}/${N}`;
+    return arte(base, formato);
+  });
+}
+
+// Peça "Siga / nova fase": logo grande no centro
+function siga(d, formato) {
+  const story = formato === 'story';
+  return `<style>
+.conteudo{flex:1;display:flex;flex-direction:column;align-items:center;text-align:center;padding:${story ? 200 : 70}px 80px ${story ? 150 : 60}px;gap:${story ? 40 : 30}px}
+.titulo{font-size:${story ? 104 : 88}px}
+.logo-grande{font-size:${story ? 400 : 330}px;border-width:14px}
+.texto{font-size:${story ? 34 : 30}px;font-weight:700;line-height:1.35;max-width:26ch}
+.vazio{flex:1}
 </style>
-<div class="peca">${d.foto ? foto(d.foto, 'escurece') : ''}${publi}
-  <span class="an" style="position:relative">${esc(d.anunciante)}</span>
-  <h1 class="ajusta" data-min="16" style="position:relative">${fmt(d.titulo)}</h1>
-  <span class="bt" style="position:relative">${cta}</span>${logo}
-  <div class="fx" style="position:relative">${faixa(5)}</div>
-</div>`;
+<div class="peca"><div class="faixa"><i></i><i></i><i></i></div>
+<div class="conteudo">
+  ${d.selo !== false ? `<span class="selo" style="font-size:30px;align-self:center">${fmt(d.selo || 'Igarassu Ordinário')}</span>` : ''}
+  <h1 class="titulo">${fmt(d.titulo || 'Segue o *Igarassu Ordinário*')}</h1>
+  ${config.logo ? `<img class="logo logo-grande" src="${config.logo}">` : ''}
+  <p class="texto">${fmt(d.texto || MARCA.descricao)}</p>
+  <div class="vazio"></div>
+  ${arroba(story ? 44 : 40)}
+</div></div>`;
+}
+
+/* ------------------------------------------------------------------ */
+/* Banners do site, link compartilhado e capas de destaque             */
+/* ------------------------------------------------------------------ */
+function banner(d, tipo) {
+  const cta = fmt(d.chamada || 'Saiba mais →');
+  const selo = `<span class="selo">${esc(d.selo || 'Publicidade')}</span>`;
+  const logo = d.logo ? `<img class="lg" src="${d.logo}">` : '';
+  const comum = `.titulo{min-height:0;flex:0 1 auto}.lg{flex:none;object-fit:contain;background:#fff;border-radius:50%;border:2px solid var(--creme)}.botao{box-shadow:none}`;
+  if (tipo === 'ret') {
+    return `<style>${comum}.faixa{--f:4px}.c{flex:1;min-height:0;display:flex;flex-direction:column;gap:7px;padding:14px 16px 14px}
+.selo{font-size:9px;padding:3px 8px}.titulo{font-size:30px}.an{font-size:12px;font-weight:800;color:var(--creme)}.botao{align-self:flex-start;font-size:13px;padding:8px 14px;margin-top:auto}
+.lg{position:absolute;right:12px;bottom:12px;width:52px;height:52px}</style>
+<div class="peca"><div class="faixa"><i></i><i></i><i></i></div><div class="c">${selo}${d.anunciante ? `<span class="an">${esc(d.anunciante)}</span>` : ''}
+<h1 class="titulo ajusta" data-min="16">${fmt(d.titulo)}</h1><span class="botao">${cta}</span></div>${logo}</div>`;
   }
   const hor = tipo === 'hor';
-  return `<style>${comum}
-.peca{flex-direction:row;align-items:center;gap:${hor ? 16 : 10}px;padding:0 ${hor ? 18 : 10}px ${hor ? 4 : 4}px}
-.lg{width:${hor ? 62 : 56}px;height:${hor ? 62 : 56}px;padding:4px}
-.tx{flex:1;min-width:0;height:100%;display:flex;flex-direction:column;justify-content:center;gap:2px;padding:6px 0}
-.an{font-size:${hor ? 10 : 9}px;flex:none}
-h1{flex:0 1 auto;font-size:${hor ? 26 : 19}px;line-height:1.1}
-.bt{font-size:${hor ? 14 : 11}px;padding:${hor ? '10px 18px' : '7px 11px'}}
-.fx{position:absolute;left:0;right:0;bottom:0}
-</style>
-<div class="peca">${publi}${logo}
-  <div class="tx"><span class="an">${esc(d.anunciante)}</span><h1 class="ajusta" data-min="11">${fmt(d.titulo)}</h1></div>
-  <span class="bt">${cta}</span>
-  <div class="fx">${faixa(4)}</div>
-</div>`;
+  return `<style>${comum}.faixa{--f:3px}.c{flex:1;min-height:0;display:flex;align-items:center;gap:${hor ? 16 : 9}px;padding:0 ${hor ? 16 : 9}px}
+.tx{flex:1;min-width:0;height:100%;display:flex;flex-direction:column;justify-content:center;gap:3px;padding:5px 0}
+.titulo{font-size:${hor ? 26 : 17}px;line-height:1}.selo{font-size:${hor ? 9 : 7}px;padding:2px 7px}
+.botao{font-size:${hor ? 14 : 10}px;padding:${hor ? '10px 16px' : '7px 10px'}}.lg{width:${hor ? 60 : 50}px;height:${hor ? 60 : 50}px}</style>
+<div class="peca"><div class="faixa"><i></i><i></i><i></i></div><div class="c">${logo}<div class="tx">${selo}<h1 class="titulo ajusta" data-min="11">${fmt(d.titulo)}</h1></div><span class="botao">${cta}</span></div></div>`;
 }
 
-module.exports = { modelos, MARCA, CATEGORIAS, ICONES };
+function capaDestaque(d) {
+  const padrao = [
+    { icone: 'noticias', nome: 'noticias' }, { icone: 'alerta', nome: 'urgente' }, { icone: 'info', nome: 'servico' },
+    { icone: 'calendario', nome: 'agenda' }, { icone: 'pergunta', nome: 'tu-sabia' }, { icone: 'megafone', nome: 'anuncie' },
+  ];
+  return (d.itens || padrao).map((it) => ({
+    sufixo: it.nome || it.icone,
+    html: `<style>
+.peca{background:radial-gradient(circle at 50% 50%, #D2F78A 0%, #7EE152 30%, #1DB34E 62%)}
+.raios{position:absolute;inset:0}
+.circ{position:absolute;left:50%;top:50%;width:620px;height:620px;margin:-310px 0 0 -310px;border-radius:50%;background:#007045;border:12px solid #fff;display:grid;place-items:center}
+.circ svg{width:330px;height:330px}
+.ponto{position:absolute;left:50%;top:50%;width:62px;height:62px;margin:-341px 0 0 -31px;border-radius:50%;background:#FE5E00;border:9px solid #fff}
+.base{position:absolute;left:0;right:0;bottom:0;display:flex;flex-direction:column}
+.base i{display:block;height:36px}.base i:nth-child(1){background:#FFAE01}.base i:nth-child(2){background:#FE5E00}.base i:nth-child(3){background:#FC3001}
+</style>
+<div class="peca">
+  <svg class="raios" viewBox="0 0 1080 1920"><g fill="#fff" opacity=".13"><path d="M540 960L230 0H360Z"/><path d="M540 960L720 0H850Z"/><path d="M540 960L0 690V820Z"/><path d="M540 960L1080 690V820Z"/></g></svg>
+  <div class="circ">${svgIcone(it.icone, '#fff', 2.1)}</div><div class="ponto"></div>
+  <div class="base"><i></i><i></i><i></i></div>
+</div>`,
+  }));
+}
+
+/* ------------------------------------------------------------------ */
+/* Catálogo de modelos                                                 */
+/* ------------------------------------------------------------------ */
+const modelos = {
+  // Notícia
+  'story-noticia': { nome: 'Story de notícia (padrão do guia)', grupo: 'Notícia', ...peca('story', ['titulo']) },
+  'feed-noticia': { nome: 'Post de notícia no feed (1080×1350; "altura": 1440 para o alto)', grupo: 'Notícia', ...peca('feed', ['titulo']) },
+  'story-urgente': { nome: 'Story urgente / notícia pesada (fundo escuro, selo vermelho)', grupo: 'Notícia', ...peca('story', ['titulo'], {}, urgente) },
+  'feed-urgente': { nome: 'Feed urgente / notícia pesada', grupo: 'Notícia', ...peca('feed', ['titulo'], {}, urgente) },
+  carrossel: {
+    nome: 'Carrossel no feed (capa + slides, selo com "• n/N")', grupo: 'Notícia', ...FORMATOS.feed, obrigatorios: ['titulo', 'slides'],
+    campos: { ...CAMPOS_BASE, slides: 'lista de slides, cada um com os mesmos campos (titulo, texto, itens, gancho, foto...)' },
+    render: (d) => sequencia(d, 'feed'),
+  },
+  'sequencia-stories': {
+    nome: 'Sequência de stories (capa + stories, selo com "• n/N")', grupo: 'Notícia', ...FORMATOS.story, obrigatorios: ['titulo', 'slides'],
+    campos: { ...CAMPOS_BASE, slides: 'lista de stories com os mesmos campos' },
+    render: (d) => sequencia(d, 'story'),
+  },
+  'story-tu-sabia': { nome: '"Tu sabia?" (foto ou ilustração com balão)', grupo: 'Quadros', ...peca('story', ['titulo'], { balao: 'fala no balão (ex.: TEM HISTÓRIA, VISSE!)' }, tuSabia) },
+  'feed-tu-sabia': { nome: '"Curiosidade ordinária" no feed', grupo: 'Quadros', ...peca('feed', ['titulo'], { balao: 'fala no balão' }, (d) => tuSabia({ selo: 'Curiosidade ordinária', chamada: 'Arrasta pro lado que a gente conta 👉', ...d })) },
+
+  // Serviço e agenda
+  'story-servico': { nome: 'Serviço ordinário (utilidade pública) no story', grupo: 'Serviço', ...peca('story', ['titulo'], { itens: 'lista de { "rotulo": "Telefone", "texto": "0800 ..." }', observacao: 'card creme no fim' }, servico) },
+  'feed-servico': { nome: 'Serviço ordinário no feed', grupo: 'Serviço', ...peca('feed', ['titulo'], { itens: 'lista de { "rotulo", "texto" }', observacao: 'card creme' }, servico) },
+  'story-agenda': { nome: 'Agenda / evento no story', grupo: 'Agenda', ...peca('story', ['titulo'], { data: 'ex.: 29/11', dia_semana: 'ex.: Sábado', hora: '', local: '', entrada: '', descricao: 'card creme' }, agenda) },
+  'feed-agenda': { nome: 'Agenda / evento no feed', grupo: 'Agenda', ...peca('feed', ['titulo'], { data: '', dia_semana: '', hora: '', local: '', entrada: '', descricao: '' }, agenda) },
+  'feed-frase': { nome: 'Frase / declaração', grupo: 'Notícia', ...peca('feed', ['frase', 'autor'], { frase: 'a fala, sem aspas', autor: 'quem disse', cargo: 'opcional' }, frase) },
+  'feed-nota': { nome: 'Nota / comunicado / errata ("sobrio": true para nota de pesar)', grupo: 'Institucional', ...peca('feed', ['texto'], { assinatura: 'padrão: Equipe Igarassu Ordinário', sobrio: 'true = fundo escuro' }, nota) },
+  'story-nota': { nome: 'Nota / comunicado no story', grupo: 'Institucional', ...peca('story', ['texto'], { assinatura: '', sobrio: '' }, nota) },
+
+  // Publicidade
+  'publi-story': { nome: 'Publicidade de anunciante no story', grupo: 'Publicidade', ...peca('story', ['anunciante', 'titulo'], { anunciante: 'nome do comércio', contato: 'lista: WhatsApp, endereço, @', preco: 'opcional', preco_antigo: 'opcional' }, publi) },
+  'publi-feed': { nome: 'Publicidade de anunciante no feed', grupo: 'Publicidade', ...peca('feed', ['anunciante', 'titulo'], { anunciante: '', contato: '', preco: '', preco_antigo: '' }, publi) },
+  'publi-anuncie': { nome: 'Chamada "Anuncie aqui" (feed)', grupo: 'Publicidade', ...peca('feed', [], {}, anuncie) },
+  'story-anuncie': { nome: 'Chamada "Anuncie aqui" (story)', grupo: 'Publicidade', ...peca('story', [], {}, anuncie) },
+  'banner-300x250': { nome: 'Banner do site 300×250', grupo: 'Banner do site', largura: 300, altura: 250, escala: 2, obrigatorios: ['titulo'], campos: { anunciante: '', titulo: '*palavra* amarela', chamada: 'botão', logo: 'logo do anunciante (opcional)' }, render: (d) => banner(d, 'ret') },
+  'banner-728x90': { nome: 'Banner do site 728×90 (computador)', grupo: 'Banner do site', largura: 728, altura: 90, escala: 2, obrigatorios: ['titulo'], campos: { titulo: '', chamada: '', logo: '' }, render: (d) => banner(d, 'hor') },
+  'banner-320x100': { nome: 'Banner do site 320×100 (celular)', grupo: 'Banner do site', largura: 320, altura: 100, escala: 2, obrigatorios: ['titulo'], campos: { titulo: '', chamada: '', logo: '' }, render: (d) => banner(d, 'cel') },
+
+  // Institucional
+  'story-siga': { nome: 'Story "Siga" / nova fase (logo grande no centro)', grupo: 'Institucional', ...FORMATOS.story, obrigatorios: [], campos: { selo: '', titulo: '', texto: '' }, render: (d) => siga(d, 'story') },
+  'feed-siga': { nome: 'Feed "Siga" (logo grande)', grupo: 'Institucional', ...FORMATOS.feed, obrigatorios: [], campos: { selo: '', titulo: '', texto: '' }, render: (d) => siga(d, 'feed') },
+  'og-materia': {
+    nome: 'Imagem de link compartilhado (WhatsApp/Facebook) 1200×630', grupo: 'Institucional', largura: 1200, altura: 630, obrigatorios: ['titulo'],
+    campos: { selo: '', titulo: '', pesada: '' },
+    render: (d) => `<style>.c{flex:1;min-height:0;display:flex;flex-direction:column;gap:22px;padding:44px 60px 40px}.topo{display:flex;align-items:center;gap:14px}.topo .logo{font-size:64px}.selo{font-size:24px}.titulo{flex:0 1 auto;min-height:0;font-size:80px}.vazio{flex:1}</style>
+<div class="peca${d.pesada ? ' pesada' : ''}"><div class="faixa" style="--f:10px"><i></i><i></i><i></i></div><div class="c">
+<div class="topo">${config.logo ? `<img class="logo" src="${config.logo}">` : ''}<span class="selo${d.pesada ? ' alerta' : ''}">${fmt(d.selo || 'Igarassu Ordinário')}</span></div>
+<h1 class="titulo ajusta" data-min="40">${fmt(d.titulo)}</h1><div class="vazio"></div><div class="rodape"><span class="fonte" style="font-size:22px">${MARCA.site}</span>${arroba(30)}</div></div></div>`,
+  },
+  'capa-destaque': {
+    nome: 'Capas dos destaques (círculo verde-escuro, ponto laranja, faixa no pé)', grupo: 'Institucional', ...FORMATOS.story, obrigatorios: [],
+    campos: { itens: `lista de { "icone": "${Object.keys(ICONES).join('|')}", "nome": "arquivo" }` },
+    render: capaDestaque,
+  },
+};
+
+module.exports = { modelos, config, MARCA, ICONES, CENAS };

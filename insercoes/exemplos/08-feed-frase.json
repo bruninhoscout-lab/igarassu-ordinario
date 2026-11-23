@@ -1,7 +1,7 @@
 {
   "modelo": "feed-frase",
-  "frase": "Aqui vai a frase da pessoa entrevistada, *do jeito que ela falou*.",
+  "frase": "Aqui vai a fala da pessoa, do *jeito que ela falou*",
   "autor": "Nome da Pessoa",
-  "cargo": "Cargo ou bairro",
-  "contexto": "sobre o assunto da matéria"
+  "cargo": "cargo ou bairro",
+  "fonte": "onde ela falou"
 }

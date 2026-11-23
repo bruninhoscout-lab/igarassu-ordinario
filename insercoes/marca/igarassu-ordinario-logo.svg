@@ -1,0 +1,132 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 1080" width="1080" height="1080" role="img" aria-label="Torre da Igreja dos Santos Cosme e Damião, de Igarassu, em ilustração" style="position: absolute; left: 0; top: 0">
+<defs>
+<radialGradient id="bg" cx="0.48" cy="0.5" r="0.75">
+<stop offset="0" stop-color="#D2F78A"/>
+<stop offset="0.45" stop-color="#7EE152"/>
+<stop offset="1" stop-color="#1DB34E"/>
+</radialGradient>
+<linearGradient id="wall" x1="0" y1="0" x2="0" y2="1">
+<stop offset="0" stop-color="#FFFFFF"/>
+<stop offset="1" stop-color="#F4ECDD"/>
+</linearGradient>
+<linearGradient id="side" x1="0" y1="0" x2="1" y2="0">
+<stop offset="0" stop-color="#BFC7CF"/>
+<stop offset="1" stop-color="#A3ADB7"/>
+</linearGradient>
+<linearGradient id="stone" x1="0" y1="0" x2="1" y2="0">
+<stop offset="0" stop-color="#DDB980"/>
+<stop offset="1" stop-color="#BD955E"/>
+</linearGradient>
+<linearGradient id="stoneDark" x1="0" y1="0" x2="1" y2="0">
+<stop offset="0" stop-color="#B08A55"/>
+<stop offset="1" stop-color="#957044"/>
+</linearGradient>
+<linearGradient id="dome" x1="0" y1="0" x2="1" y2="0">
+<stop offset="0" stop-color="#FFFFFF"/>
+<stop offset="0.55" stop-color="#F3F5F6"/>
+<stop offset="1" stop-color="#C9D0D6"/>
+</linearGradient>
+<linearGradient id="belfry" x1="0" y1="0" x2="0" y2="1">
+<stop offset="0" stop-color="#6F9A6A"/>
+<stop offset="1" stop-color="#B9D6A4"/>
+</linearGradient>
+<linearGradient id="bronze" x1="0" y1="0" x2="1" y2="0">
+<stop offset="0" stop-color="#8C5A2E"/>
+<stop offset="0.4" stop-color="#6A3E1E"/>
+<stop offset="1" stop-color="#3F2412"/>
+</linearGradient>
+<linearGradient id="wood" x1="0" y1="0" x2="0" y2="1">
+<stop offset="0" stop-color="#7A4528"/>
+<stop offset="1" stop-color="#5A311B"/>
+</linearGradient>
+<linearGradient id="shade" x1="0" y1="0" x2="0" y2="1">
+<stop offset="0" stop-color="#3A2A10" stop-opacity="0.22"/>
+<stop offset="1" stop-color="#3A2A10" stop-opacity="0"/>
+</linearGradient>
+<path id="leaf" d="M0 0 C40 -26 96 -26 150 6 C100 -6 50 -4 0 8 Z"/>
+</defs>
+<rect width="1080" height="1080" fill="url(#bg)"/>
+<g opacity="0.08" fill="#FFFFFF">
+<path d="M520 640 L-120 200 L-120 300 Z"/><path d="M520 640 L60 -40 L170 -40 Z"/><path d="M520 640 L740 -40 L850 -40 Z"/><path d="M520 640 L1200 200 L1200 300 Z"/>
+</g>
+<g transform="translate(75.6 134.4) scale(0.86)">
+<g fill="#0A7A3A" opacity="0.9">
+<path d="M190 965 C196 860 188 760 166 650" stroke="#0A7A3A" stroke-width="14" fill="none" stroke-linecap="round"/>
+<g transform="translate(166 650)">
+<use href="#leaf" transform="rotate(-170) scale(0.95)"/><use href="#leaf" transform="rotate(-140) scale(1.05)"/><use href="#leaf" transform="rotate(-105) scale(0.8)"/><use href="#leaf" transform="rotate(-62) scale(0.9)"/><use href="#leaf" transform="rotate(-25) scale(1.05)"/><use href="#leaf" transform="rotate(12) scale(0.9)"/><use href="#leaf" transform="rotate(150) scale(0.85)"/>
+</g>
+<path d="M900 965 C894 890 904 820 922 740" stroke="#0A7A3A" stroke-width="12" fill="none" stroke-linecap="round"/>
+<g transform="translate(922 740)">
+<use href="#leaf" transform="rotate(-160) scale(0.75)"/><use href="#leaf" transform="rotate(-125) scale(0.85)"/><use href="#leaf" transform="rotate(-80) scale(0.7)"/><use href="#leaf" transform="rotate(-40) scale(0.85)"/><use href="#leaf" transform="rotate(-5) scale(0.8)"/><use href="#leaf" transform="rotate(165) scale(0.7)"/>
+</g>
+</g>
+<path d="M660 330 L724 346 L724 500 L660 500 Z" fill="url(#side)"/>
+<path d="M660 520 L724 524 L724 910 L660 910 Z" fill="url(#side)"/>
+<rect x="708" y="346" width="16" height="154" fill="url(#stoneDark)"/>
+<rect x="708" y="524" width="16" height="386" fill="url(#stoneDark)"/>
+<path d="M680 470 L680 392 A12 16 0 0 1 704 392 L704 470 Z" fill="#4E5A64"/>
+<rect x="380" y="330" width="280" height="170" fill="url(#wall)"/>
+<rect x="380" y="520" width="280" height="390" fill="url(#wall)"/>
+<rect x="380" y="330" width="38" height="170" fill="url(#stone)"/>
+<rect x="622" y="330" width="38" height="170" fill="url(#stone)"/>
+<rect x="380" y="520" width="38" height="390" fill="url(#stone)"/>
+<rect x="622" y="520" width="38" height="390" fill="url(#stone)"/>
+<g stroke="#9C7746" stroke-width="2.5" opacity="0.7">
+<path d="M380 372 H418 M380 414 H418 M380 456 H418 M622 372 H660 M622 414 H660 M622 456 H660"/>
+<path d="M380 566 H418 M380 614 H418 M380 662 H418 M380 710 H418 M380 758 H418 M380 806 H418 M380 854 H418"/>
+<path d="M622 566 H660 M622 614 H660 M622 662 H660 M622 710 H660 M622 758 H660 M622 806 H660 M622 854 H660"/>
+</g>
+<g fill="#8F6A3C" opacity="0.18">
+<rect x="384" y="590" width="20" height="40"/><rect x="640" y="700" width="16" height="70"/><rect x="386" y="780" width="14" height="50"/><rect x="630" y="400" width="18" height="34"/>
+</g>
+<rect x="380" y="330" width="280" height="22" fill="url(#shade)"/>
+<rect x="380" y="520" width="280" height="22" fill="url(#shade)"/>
+<path d="M364 300 L676 300 L746 318 L746 336 L676 330 L364 330 Z" fill="url(#stone)"/>
+<rect x="364" y="300" width="312" height="5" fill="#EBCB95"/>
+<rect x="364" y="324" width="312" height="6" fill="#A47E4B"/>
+<path d="M368 498 L672 498 L732 502 L732 522 L672 520 L368 520 Z" fill="url(#stone)"/>
+<rect x="368" y="498" width="304" height="4" fill="#EBCB95"/>
+<rect x="368" y="515" width="304" height="5" fill="#A47E4B"/>
+<rect x="378" y="288" width="22" height="12" fill="#BD955E"/>
+<path d="M378 288 L389 232 L400 288 Z" fill="url(#stone)"/>
+<rect x="640" y="288" width="22" height="12" fill="#BD955E"/>
+<path d="M640 288 L651 232 L662 288 Z" fill="url(#stone)"/>
+<rect x="404" y="262" width="232" height="38" fill="url(#dome)"/>
+<rect x="398" y="258" width="244" height="8" fill="#E9EDEF"/>
+<path d="M402 262 C418 252 424 246 424 238 L424 222 C424 196 470 178 494 162 C506 154 512 146 514 138 L526 138 C528 146 534 154 546 162 C570 178 616 196 616 222 L616 238 C616 246 622 252 638 262 Z" fill="url(#dome)"/>
+<path d="M424 222 C470 216 570 216 616 222" stroke="#C3CAD0" stroke-width="4" fill="none"/>
+<path d="M424 238 C470 234 570 234 616 238" stroke="#D3D9DD" stroke-width="3" fill="none"/>
+<rect x="514" y="120" width="12" height="20" fill="#D5DBDF"/>
+<circle cx="520" cy="110" r="17" fill="#FE5E00"/>
+<circle cx="514" cy="104" r="5" fill="#FFB27A"/>
+<path d="M470 478 L470 402 A50 50 0 0 1 570 402 L570 478 Z" fill="url(#stone)"/>
+<path d="M484 474 L484 404 A36 36 0 0 1 556 404 L556 474 Z" fill="url(#belfry)"/>
+<path d="M484 404 A36 36 0 0 1 556 404 L556 414 A36 30 0 0 0 484 414 Z" fill="#000000" opacity="0.18"/>
+<rect x="462" y="420" width="16" height="12" fill="#A47E4B"/>
+<rect x="562" y="420" width="16" height="12" fill="#A47E4B"/>
+<rect x="514" y="398" width="12" height="14" fill="#3F2412"/>
+<path d="M500 456 C500 426 508 410 520 410 C532 410 540 426 540 456 Z" fill="url(#bronze)"/>
+<rect x="495" y="452" width="50" height="8" rx="4" fill="#3F2412"/>
+<path d="M506 448 C506 430 510 420 516 416" stroke="#B07A45" stroke-width="3" fill="none" stroke-linecap="round"/>
+<circle cx="520" cy="464" r="5" fill="#3F2412"/>
+<rect x="456" y="476" width="128" height="12" fill="url(#stone)"/>
+<rect x="456" y="476" width="128" height="3" fill="#EBCB95"/>
+<rect x="476" y="604" width="88" height="100" fill="url(#stone)"/>
+<rect x="486" y="614" width="68" height="80" fill="url(#wood)"/>
+<rect x="518" y="614" width="4" height="80" fill="#3F2412"/>
+<rect x="492" y="622" width="20" height="64" fill="none" stroke="#4A2816" stroke-width="2" opacity="0.6"/>
+<rect x="528" y="622" width="20" height="64" fill="none" stroke="#4A2816" stroke-width="2" opacity="0.6"/>
+<rect x="486" y="614" width="68" height="8" fill="#000000" opacity="0.18"/>
+<rect x="494" y="782" width="52" height="70" fill="url(#stone)"/>
+<rect x="503" y="791" width="34" height="52" fill="#4F5E55"/>
+<rect x="503" y="791" width="34" height="8" fill="#000000" opacity="0.2"/>
+<rect x="366" y="900" width="308" height="60" fill="url(#stone)"/>
+<rect x="366" y="900" width="308" height="5" fill="#EBCB95"/>
+<path d="M674 900 L730 904 L730 960 L674 960 Z" fill="url(#stoneDark)"/>
+</g>
+<rect x="0" y="960" width="1080" height="30" fill="#FFAE01"/>
+<rect x="0" y="990" width="1080" height="30" fill="#FE5E00"/>
+<rect x="0" y="1020" width="1080" height="30" fill="#FC3001"/>
+<rect x="0" y="1050" width="1080" height="30" fill="#007045"/>
+<ellipse cx="550" cy="962" rx="230" ry="8" fill="#5A3A10" opacity="0.25"/>
+</svg>

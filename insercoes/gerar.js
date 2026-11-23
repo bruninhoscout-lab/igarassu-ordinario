@@ -11,7 +11,7 @@
 
 const fs = require('fs');
 const path = require('path');
-const { modelos } = require('./modelos');
+const { modelos, config } = require('./modelos');
 
 const RAIZ = __dirname;
 const MIME = { '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.webp': 'image/webp', '.svg': 'image/svg+xml', '.gif': 'image/gif' };
@@ -52,6 +52,7 @@ async function gerar(pedidos, { saida, jpg }) {
   const { chromium } = require('playwright');
   const browser = await chromium.launch();
   const base = cssBase();
+  config.logo = imagem(path.join(RAIZ, 'marca', 'logo-redonda-320.png'), RAIZ);
   const feitos = [];
   try {
     for (const { pedido, baseDir } of pedidos) {

@@ -1,0 +1,14 @@
+{
+  "modelo": "carrossel",
+  "arquivo": "carrossel-agua-aqua",
+  "selo": "Serviço ordinário",
+  "titulo": "Mudou a empresa da água: *o que muda* pra tu",
+  "subtitulo": "A AQUA Pernambuco assumiu na segunda, 23/11",
+  "cena": "casario",
+  "fonte": "G1 Pernambuco",
+  "slides": [
+    { "titulo": "Quem cuida da *água* agora", "texto": "A distribuição de água e o esgoto em Igarassu são da *AQUA Pernambuco*.\n\nA *Compesa* continua produzindo a água." },
+    { "titulo": "Como falar com a *AQUA*", "itens": [{ "rotulo": "Telefone e WhatsApp", "texto": "0800 772 0001" }, { "rotulo": "Serve pra", "texto": "Conserto, religação e 2ª via", "icone": "check" }] },
+    { "titulo": "E a *conta*?", "gancho": "Sobe 8,85% a partir de 4 de dezembro." }
+  ]
+}

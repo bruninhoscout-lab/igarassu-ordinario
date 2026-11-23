@@ -1,0 +1,15 @@
+{
+  "modelo": "feed-noticia",
+  "arquivo": "feed-noticia-agua-aqua",
+  "selo": "Serviço ordinário • Água",
+  "titulo": "A água agora é da *AQUA*",
+  "subtitulo": "Desde segunda, 23/11",
+  "itens": [
+    { "texto": "Telefone e WhatsApp: 0800 772 0001", "icone": "whatsapp" },
+    { "texto": "Compesa segue produzindo a água", "icone": "agua" },
+    { "texto": "Conta sobe 8,85% em 4/12", "icone": "dinheiro" }
+  ],
+  "gancho": "Salva o número que é por ele que se pede conserto!",
+  "cena": "casario",
+  "fonte": "G1 Pernambuco"
+}

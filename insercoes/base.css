@@ -1,65 +1,81 @@
-/* Igarassu Ordinário — base visual das inserções (posts, stories, publicidade, banners).
-   Mesma identidade do site: verde principal, detalhes em amarelo, laranja e vermelho,
-   fundo branco, Montserrat. Sem azul. As fontes entram em base64 pelo gerar.js. */
+/* Igarassu Ordinário — base visual das inserções.
+   Segue o Guia de identidade visual (nov/2026), em marca/guia-identidade.pdf:
+   fundo verde página com pontinhos brancos, faixa laranja/vermelho/verde no topo,
+   títulos em Montserrat Black maiúsculo com palavra-chave amarela, cards creme,
+   gancho amarelo, vermelho só em botão de chamada e alerta. */
 :root {
-  --verde-escuro: #0B6B35;
-  --verde: #12A150;
-  --laranja: #F07C1A;
-  --vermelho: #D93A2B;
-  --amarelo: #FFC533;
-  --texto: #14241B;
-  --texto-suave: #4E5F55;
-  --linha: #DDE7E0;
-  --tinta: #F1F8F3;
-  --branco: #FFFFFF;
-  /* cor da categoria (trocada por .cat-*) */
-  --cor: var(--verde-escuro);
-  --cor-texto: var(--branco);
+  --verde-pagina: #0E8D40;
+  --verde-escuro: #0B7A37;
+  --verde-vivo: #25BA5C;
+  --verde-chao: #086A30;
+  --verde-folha: #075C2A;
+  --lima: #98E648;
+  --amarelo: #FFCA3E;
+  --laranja: #F58D1E;
+  --vermelho: #E43A2D;
+  --creme: #FFF8E8;
+  --tinta: #231F00;      /* texto sobre amarelo e creme */
+  --escuro: #10211A;     /* fundo de notícia pesada */
 }
-
-.cat-cidade    { --cor: var(--verde-escuro); --cor-texto: #FFFFFF; }
-.cat-servico   { --cor: var(--verde);        --cor-texto: #06281A; }
-.cat-comercio  { --cor: var(--laranja);      --cor-texto: #2B1500; }
-.cat-cultura   { --cor: var(--amarelo);      --cor-texto: #2B2100; }
-.cat-seguranca { --cor: var(--vermelho);     --cor-texto: #FFFFFF; }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html, body { width: 100%; height: 100%; }
-body {
-  font-family: 'Montserrat', sans-serif;
-  color: var(--texto);
-  background: var(--branco);
-  -webkit-font-smoothing: antialiased;
-  overflow: hidden;
+body { font-family: 'Montserrat', sans-serif; color: #fff; background: var(--verde-pagina); -webkit-font-smoothing: antialiased; overflow: hidden; }
+
+/* Fundo padrão: verde página com pontinhos brancos discretos (4 px a cada 44 px) */
+.peca {
+  position: relative; width: 100%; height: 100%; overflow: hidden; display: flex; flex-direction: column;
+  background:
+    radial-gradient(circle at 2px 2px, rgba(255,255,255,.075) 2px, transparent 2.6px) 0 0 / 44px 44px,
+    linear-gradient(180deg, var(--verde-pagina) 0%, var(--verde-pagina) 45%, var(--verde-escuro) 100%);
+}
+/* Notícia pesada (acidente, morte, incêndio): fundo escuro, sem humor, sem ilustração */
+.peca.pesada {
+  background:
+    radial-gradient(circle at 2px 2px, rgba(255,255,255,.05) 2px, transparent 2.6px) 0 0 / 44px 44px,
+    linear-gradient(180deg, #16291F 0%, var(--escuro) 55%, #0A1611 100%);
 }
 
-.peca { position: relative; width: 100%; height: 100%; overflow: hidden; display: flex; flex-direction: column; }
+/* Faixa de 3 cores no topo: laranja, vermelho, verde */
+.faixa { flex: none; display: flex; flex-direction: column; }
+.faixa i { display: block; height: var(--f, 14px); }
+.faixa i:nth-child(1) { background: var(--laranja); }
+.faixa i:nth-child(2) { background: var(--vermelho); }
+.faixa i:nth-child(3) { background: var(--verde-vivo); }
 
-/* Faixa de quatro cores — assinatura da marca */
-.faixa { display: flex; flex: none; height: var(--faixa, 18px); }
-.faixa i { flex: 1; }
-.faixa i:nth-child(1) { background: var(--verde); }
-.faixa i:nth-child(2) { background: var(--amarelo); }
-.faixa i:nth-child(3) { background: var(--laranja); }
-.faixa i:nth-child(4) { background: var(--vermelho); }
+/* Logo redonda com borda creme */
+.logo { flex: none; border-radius: 50%; border: .06em solid var(--creme); background: var(--verde-vivo); width: 1em; height: 1em; object-fit: cover; }
 
-/* Marca (selo IO + nome) */
-.marca { display: flex; align-items: center; gap: .45em; font-weight: 800; letter-spacing: -0.01em; color: var(--verde-escuro); }
-.marca-io { display: inline-grid; place-items: center; width: 1.9em; height: 1.9em; border-radius: .5em; background: var(--verde-escuro); color: var(--amarelo); font-weight: 800; font-size: .9em; letter-spacing: -0.02em; flex: none; }
-.marca-clara { color: var(--branco); }
-.marca-clara .marca-io { background: var(--amarelo); color: var(--verde-escuro); }
+/* Selo amarelo */
+.selo { display: inline-flex; align-items: center; align-self: flex-start; background: var(--amarelo); color: var(--tinta); font-weight: 800; text-transform: uppercase; letter-spacing: .01em; border-radius: 999px; padding: .42em .9em; line-height: 1.1; white-space: nowrap; }
+.selo.alerta { background: var(--vermelho); color: #fff; }
 
-/* Etiqueta de categoria */
-.etiqueta { display: inline-block; align-self: flex-start; padding: .35em 1em; border-radius: 999px; font-weight: 800; text-transform: uppercase; letter-spacing: .08em; background: var(--cor); color: var(--cor-texto); }
+/* Título: Montserrat Black, maiúsculo, palavra-chave amarela */
+.titulo { font-weight: 900; text-transform: uppercase; line-height: .98; letter-spacing: -.01em; text-wrap: balance; color: #fff; }
+.destaque { color: var(--amarelo); }
+.sub { font-weight: 800; color: #fff; line-height: 1.25; }
 
-/* Foto com degradê para leitura */
-.foto { position: absolute; inset: 0; background-size: cover; background-position: center; }
-.foto.escurece::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(11,107,53,0) 30%, rgba(7,40,22,.55) 62%, rgba(7,40,22,.92) 100%); }
+/* Cards */
+.card { background: var(--creme); color: var(--tinta); border-radius: .7em; font-weight: 700; line-height: 1.3; }
+.card .destaque { color: var(--verde-pagina); }
+.gancho { background: var(--amarelo); color: var(--tinta); border-radius: .55em; font-weight: 900; line-height: 1.15; }
+.gancho .destaque { color: var(--verde-escuro); }
+.item { display: flex; align-items: center; gap: .6em; background: var(--creme); color: var(--tinta); border-radius: .6em; font-weight: 800; line-height: 1.2; }
+.item .ic { flex: none; display: grid; place-items: center; width: 1.6em; height: 1.6em; border-radius: .38em; background: var(--verde-pagina); color: #fff; }
+.item .ic svg { width: 1.05em; height: 1.05em; }
+.item small { display: block; font-size: .62em; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; color: var(--verde-pagina); margin-bottom: .1em; }
 
-/* Títulos que se ajustam ao espaço (ver ajustar() no gerar.js) */
+/* Botão de chamada (vermelho) e chamada em texto (amarelo) */
+.botao { align-self: center; background: var(--vermelho); color: #fff; font-weight: 900; border-radius: 999px; padding: .55em 1.1em; box-shadow: 0 .2em .5em rgba(0,0,0,.18); white-space: nowrap; }
+.chamada-texto { color: var(--amarelo); font-weight: 900; }
+
+/* Rodapé: fonte à esquerda, logo + @ à direita */
+.rodape { flex: none; display: flex; align-items: center; justify-content: space-between; gap: 1em; }
+.rodape.centro { justify-content: center; }
+.fonte { font-weight: 700; color: #fff; opacity: .95; }
+.arroba { display: flex; align-items: center; gap: .3em; font-weight: 900; white-space: nowrap; }
+.arroba em { font-style: normal; }
+.arroba b { color: #fff; font-weight: 900; }
+.arroba span { color: var(--amarelo); }
+
 .ajusta { overflow: hidden; }
-h1, h2, h3 { text-wrap: balance; line-height: 1.12; letter-spacing: -0.02em; font-weight: 800; }
-p { text-wrap: pretty; }
-.destaque { color: var(--hl, var(--laranja)); }
-.escuro { --hl: var(--amarelo); }
-mark { background: var(--amarelo); color: var(--texto); padding: 0 .12em; border-radius: .12em; }

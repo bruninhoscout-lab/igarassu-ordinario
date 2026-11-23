@@ -1,87 +1,83 @@
 # Inserções — Igarassu Ordinário
 
-Kit de peças prontas com a identidade do portal: **verde, amarelo, laranja e vermelho, fundo branco, Montserrat, sem azul**, e a faixa de quatro cores como assinatura. Para pedir uma peça, basta escrever no chat do Claude, por exemplo:
+Kit de peças prontas no padrão do **Guia de identidade visual (nov/2026)**, que está em [`marca/guia-identidade.pdf`](marca/guia-identidade.pdf). Para pedir uma peça, é só escrever no chat do Claude, por exemplo:
 
-> "Faz um **feed-noticia** da matéria 175"
-> "Preciso de um **urgente** sobre: tiroteio no centro, sem vítimas, fonte PM"
-> "Monta um **carrossel** explicando a mudança da água, 3 slides"
-> "**Publi** feed + story pro Mercadinho X, oferta tal, WhatsApp tal, segue a foto"
+> "Faz um **story** da matéria 175"
+> "**Urgente**: incêndio em loja no centro, sem feridos, fonte Bombeiros"
+> "Monta um **carrossel** explicando a mudança da água, 4 slides"
+> "**Tu sabia?** sobre a Coroa do Avião, segue a ilustração"
+> "**Publi** feed + story pro Mercadinho X, oferta tal, WhatsApp tal"
 > "**Banners** do site pro anunciante Y"
 
-O Claude escreve o pedido em `insercoes/pedidos/`, gera as imagens e manda os arquivos prontos.
+O Claude escreve o pedido em `insercoes/pedidos/`, gera as imagens, confere e manda os arquivos prontos.
+
+## O padrão do guia (aplicado automaticamente)
+
+- **Fundo** verde página `#0E8D40` com pontinhos brancos discretos, escurecendo até `#0B7A37` no pé.
+- **Faixa de 3 cores no topo**: laranja `#F58D1E`, vermelho `#E43A2D` e verde vivo `#25BA5C`.
+- **Logo redonda** com borda creme no topo (ao lado do selo) e no rodapé (antes do @). O tamanho mínimo é 40 px.
+- **Selo amarelo** `#FFCA3E`, por exemplo "SERVIÇO ORDINÁRIO • 1/7". Num carrossel, a numeração entra sozinha.
+- **Título** em Montserrat Black, maiúsculo, com a palavra-chave em amarelo. Basta marcar a palavra com `*asteriscos*`.
+- **Lista com ícone** em cards creme `#FFF8E8`. O ícone é escolhido pelo texto, ou definido com `"icone"`.
+- **Card de texto** creme com termos em verde, também marcados com `*asteriscos*`. **Gancho** em card amarelo.
+- **Botão vermelho** para a chamada. O vermelho só aparece em botão e alerta.
+- **Ilustração flat** no pé: `coqueiros`, `praca`, `feira`, `igreja` ou `casario`.
+- **Rodapé**: "Fonte: …" à esquerda e logo + **@igarassu**ordinarioo à direita. Sempre cite a fonte.
+- **Notícia pesada** (acidente, morte, incêndio): fundo escuro, sem ilustração e sem humor. Use `"pesada": true` ou os modelos `*-urgente`.
+- Stories deixam livres 200 px em cima e 250 px embaixo. Texto com no mínimo 26 px.
 
 ## Catálogo
 
 | Código | Para quê | Tamanho |
 |---|---|---|
-| `feed-noticia` | Post de notícia, com ou sem foto | 1080×1350 |
-| `feed-urgente` | Plantão / urgente (fundo vermelho) | 1080×1350 |
-| `story-noticia` | Story, status do WhatsApp, capa de Reels | 1080×1920 |
-| `carrossel` | Capa + slides explicativos + slide "Siga" | 1080×1350 (várias) |
-| `feed-servico` | Utilidade pública: telefones, horários, prazos | 1080×1350 |
-| `feed-agenda` | Evento com data, hora, local e entrada | 1080×1350 |
-| `feed-frase` | Frase / declaração de alguém | 1080×1350 |
-| `feed-nota` | Nota, comunicado, errata, nota de pesar (`"sobrio": true`) | 1080×1350 |
-| `feed-siga` | Slide "Siga o perfil" avulso | 1080×1350 |
-| `publi-feed` | Publicidade de anunciante no feed | 1080×1350 |
-| `publi-story` | Publicidade de anunciante no story | 1080×1920 |
-| `publi-anuncie` | Chamada "Anuncie aqui" para vender espaço | 1080×1350 |
-| `banner-300x250` | Banner da lateral do site | 600×500 (2x) |
-| `banner-728x90` | Banner horizontal, computador | 1456×180 (2x) |
-| `banner-320x100` | Banner de celular | 640×200 (2x) |
-| `og-materia` | Imagem que aparece ao compartilhar link | 1200×630 |
-| `capa-destaque` | Capas dos destaques do Instagram | 1080×1920 (várias) |
-| `perfil` | Foto de perfil | 1080×1080 |
+| `story-noticia` | Story de notícia (o padrão das suas peças) | 1080×1920 |
+| `feed-noticia` | Post de notícia (`"altura": 1440` para o feed alto) | 1080×1350 |
+| `story-urgente` · `feed-urgente` | Urgente / notícia pesada, com fundo escuro e selo vermelho | story · feed |
+| `carrossel` | Capa + slides no feed, selo "• n/N" | 1080×1350 (várias) |
+| `sequencia-stories` | Capa + stories em sequência, selo "• n/N" | 1080×1920 (várias) |
+| `story-tu-sabia` · `feed-tu-sabia` | "Tu sabia?" / Curiosidade ordinária: ilustração com balão | story · feed |
+| `story-servico` · `feed-servico` | Serviço ordinário: telefones, prazos, documentos | story · feed |
+| `story-agenda` · `feed-agenda` | Agenda ordinária: data, hora, local, entrada | story · feed |
+| `feed-frase` | Frase / declaração | feed |
+| `feed-nota` · `story-nota` | Comunicado, errata, nota de pesar (`"sobrio": true`) | feed · story |
+| `publi-story` · `publi-feed` | Publicidade de anunciante | story · feed |
+| `publi-anuncie` · `story-anuncie` | Chamada para vender espaço | feed · story |
+| `banner-300x250` · `banner-728x90` · `banner-320x100` | Banners do site | 2x |
+| `story-siga` · `feed-siga` | "Nova fase" / "Siga", com a logo grande | story · feed |
+| `og-materia` | Imagem que aparece ao compartilhar o link | 1200×630 |
+| `capa-destaque` | Capas dos destaques: círculo verde-escuro, ponto laranja e faixa no pé | 1080×1920 |
 
-Exemplos prontos de cada modelo: pasta [`catalogo/`](catalogo/). Os pedidos que geraram esses exemplos ficam em [`exemplos/`](exemplos/).
-
-### Notícia
-![feed-noticia](catalogo/feed-noticia-agua-em-igarassu-passa-a-ser-distribuida-pela-aqua.png)
-![feed-noticia com foto](catalogo/feed-noticia-praca-da-biblia-e-entregue-requalificada-com-quadr.png)
-![feed-urgente](catalogo/feed-urgente-adolescente-de-16-anos-morre-afogado-em-acude-em-c.png)
-
-### Publicidade
-![publi-feed](catalogo/publi-feed-feira-do-fim-de-semana-com-preco-de-verdade.png)
-![publi-anuncie](catalogo/publi-anuncie.png)
-
-## Regras da identidade
-
-- **Cor por categoria** (igual ao site): Cidade = verde-escuro `#0B6B35` · Serviço = verde `#12A150` · Comércio Local = laranja `#F07C1A` · Cultura e Eventos = amarelo `#FFC533` · Segurança = vermelho `#D93A2B`.
-- Texto `#14241B`, texto suave `#4E5F55`, fundo claro `#F1F8F3`. **Nunca azul.**
-- Fonte Montserrat (500 a 900), títulos em 800.
-- Selo **IO** (verde-escuro com letras amarelas) + "Igarassu Ordinário" no topo de toda peça; faixa verde/amarelo/laranja/vermelho no pé.
-- Para destacar palavras no título, use `*asteriscos*`: no fundo branco elas ficam em laranja, no fundo escuro em amarelo.
-- Publicidade sempre leva o selo **"Publicidade"**, para separar anúncio de notícia.
-- Stories respeitam a área segura do Instagram: nada importante nos 170 px de cima nem nos 250 px de baixo.
+Há exemplos de cada modelo em [`catalogo/`](catalogo/), e os pedidos que geraram esses exemplos estão em [`exemplos/`](exemplos/). As suas artes originais ficam em [`marca/referencias/`](marca/referencias/).
 
 ## Como gerar na mão
-
-Precisa do Node e do Playwright (já instalados no ambiente do Claude).
 
 ```bash
 node insercoes/gerar.js insercoes/pedidos/meu-pedido.json   # gera em insercoes/saida/
 node insercoes/gerar.js pedido.json --jpg                     # sai em JPG
-node insercoes/gerar.js --listar                              # todos os modelos e campos
+node insercoes/gerar.js --listar                              # mostra os modelos e os campos
 node insercoes/gerar.js --exemplos                            # refaz o catálogo
 ```
 
-Um pedido é um JSON com `"modelo"` e os campos dele (ou uma lista de pedidos). `foto` e `logo` aceitam caminho relativo ao JSON ou URL. `arquivo` define o nome do arquivo gerado. Se um texto não couber, o gerador diminui a fonte e avisa quando precisar encurtar.
-
 ```json
 {
-  "modelo": "feed-noticia",
-  "categoria": "seguranca",
-  "titulo": "Adolescente de 16 anos morre afogado em *açude* em Igarassu",
-  "resumo": "Os bombeiros fizeram buscas com mergulho e recuperaram o corpo.",
-  "fonte": "Folha de Pernambuco",
-  "foto": "fotos/acude.jpg"
+  "modelo": "story-noticia",
+  "selo": "Bairro ordinário • Agamenon Magalhães",
+  "titulo": "Praça das *Palmeiras* reaberta",
+  "subtitulo": "Entregue na quarta, 18/11",
+  "itens": ["Pintura nova", "Parquinho com brinquedos novos", "Quadra de areia"],
+  "gancho": "Agamenon, a praça é de vocês: agora é cuidar pra durar!",
+  "cena": "praca",
+  "chamada": "Vê como ficou no próximo story →",
+  "fonte": "Prefeitura de Igarassu"
 }
 ```
 
+Os campos são: `selo`, `titulo`, `subtitulo`, `foto` (+ `balao`), `itens`, `texto`, `gancho`, `preco`/`preco_antigo`, `cena`, `chamada` (+ `chamada_estilo`: `botao` ou `texto`), `fonte` e `pesada`. Se um título não couber, a letra diminui sozinha, e o gerador avisa quando for preciso encurtar.
+
 ## Arquivos
 
-- `modelos.js` — os modelos (layout de cada peça)
-- `base.css` — cores, marca, faixa, etiquetas
-- `gerar.js` — transforma pedido JSON em PNG/JPG
-- `fontes/` — Montserrat (licença OFL)
-- `pedidos/` — pedidos feitos (histórico) · `saida/` — imagens geradas (fora do git)
+- `modelos.js`: os modelos (motor `arte` + presets) · `base.css`: cores e componentes do guia · `gerar.js`: transforma o pedido JSON em PNG/JPG
+- `marca/`: logo (SVG, perfil 1080/2160, redonda transparente), guia em PDF e referências
+- `fontes/`: Montserrat (licença OFL) · `pedidos/`: histórico de pedidos · `saida/`: imagens geradas (fora do git)
+
+A **Podium Soft** (títulos de vídeo e peças especiais) não veio no pacote. Se quiser usá-la, mande o arquivo da fonte.

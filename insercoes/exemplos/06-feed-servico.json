@@ -1,11 +1,14 @@
 {
   "modelo": "feed-servico",
-  "titulo": "AQUA Pernambuco: contatos da nova empresa da água",
+  "arquivo": "feed-servico-aqua",
+  "titulo": "Contatos da *AQUA*",
+  "subtitulo": "A nova empresa da água em Igarassu",
   "itens": [
-    { "rotulo": "Telefone e WhatsApp", "valor": "0800 772 0001" },
-    { "rotulo": "Desde quando", "valor": "Segunda, 23 de novembro" },
-    { "rotulo": "Reajuste na conta", "valor": "+8,85% a partir de 4/12" }
+    { "rotulo": "Telefone e WhatsApp", "texto": "0800 772 0001" },
+    { "rotulo": "Desde quando", "texto": "Segunda, 23 de novembro" },
+    { "rotulo": "Reajuste na conta", "texto": "+8,85% a partir de 4/12" }
   ],
-  "observacao": "A Compesa segue produzindo a água. A AQUA cuida da distribuição e do esgoto.",
-  "data": "23/11/2026"
+  "observacao": "A *Compesa* segue produzindo a água. A *AQUA* cuida da distribuição e do esgoto.",
+  "chamada": "Salva e manda pra quem precisa 💚",
+  "fonte": "G1 Pernambuco"
 }
