@@ -1,0 +1,13 @@
+{
+  "modelo": "carrossel",
+  "arquivo": "carrossel-agua-aqua",
+  "categoria": "servico",
+  "titulo": "Mudou a empresa da água em Igarassu: *o que muda pra você*",
+  "resumo": "A AQUA Pernambuco assume a distribuição e o esgoto. Arrasta pra entender.",
+  "data": "23/11/2026",
+  "slides": [
+    { "titulo": "Quem cuida da água agora", "texto": "Desde segunda (23), a distribuição de água e o esgoto em Igarassu são da *AQUA Pernambuco*. A Compesa continua produzindo a água." },
+    { "titulo": "Como falar com a AQUA", "texto": "Telefone e WhatsApp: *0800 772 0001*.\nGuarde o número: é por ele que você pede conserto, religação e segunda via." },
+    { "titulo": "E a conta?", "texto": "A conta sobe *8,85%* a partir de 4 de dezembro." }
+  ]
+}

@@ -1,0 +1,5 @@
+[
+  { "modelo": "banner-300x250", "anunciante": "Mercadinho Exemplo", "titulo": "Feira do fim de semana com preço de verdade", "chamada": "Ver ofertas" },
+  { "modelo": "banner-728x90", "anunciante": "Mercadinho Exemplo", "titulo": "Feira do fim de semana com preço de verdade", "chamada": "Ver ofertas", "fundo": "verde" },
+  { "modelo": "banner-320x100", "anunciante": "Mercadinho Exemplo", "titulo": "Feira do fim de semana com preço de verdade", "chamada": "Ver ofertas", "fundo": "amarelo" }
+]

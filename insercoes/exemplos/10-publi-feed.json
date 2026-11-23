@@ -1,0 +1,10 @@
+{
+  "modelo": "publi-feed",
+  "anunciante": "Mercadinho Exemplo",
+  "titulo": "Feira do fim de semana com *preço de verdade*",
+  "texto": "Frutas, verduras e carnes selecionadas. Válido sábado e domingo.",
+  "preco_antigo": "R$ 24,90",
+  "preco": "R$ 19,90",
+  "contato": ["WhatsApp (81) 90000-0000", "Rua Exemplo, 123 · Cruz de Rebouças"],
+  "foto": "foto-exemplo.svg"
+}

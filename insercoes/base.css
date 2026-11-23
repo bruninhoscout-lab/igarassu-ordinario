@@ -1,0 +1,65 @@
+/* Igarassu Ordinário — base visual das inserções (posts, stories, publicidade, banners).
+   Mesma identidade do site: verde principal, detalhes em amarelo, laranja e vermelho,
+   fundo branco, Montserrat. Sem azul. As fontes entram em base64 pelo gerar.js. */
+:root {
+  --verde-escuro: #0B6B35;
+  --verde: #12A150;
+  --laranja: #F07C1A;
+  --vermelho: #D93A2B;
+  --amarelo: #FFC533;
+  --texto: #14241B;
+  --texto-suave: #4E5F55;
+  --linha: #DDE7E0;
+  --tinta: #F1F8F3;
+  --branco: #FFFFFF;
+  /* cor da categoria (trocada por .cat-*) */
+  --cor: var(--verde-escuro);
+  --cor-texto: var(--branco);
+}
+
+.cat-cidade    { --cor: var(--verde-escuro); --cor-texto: #FFFFFF; }
+.cat-servico   { --cor: var(--verde);        --cor-texto: #06281A; }
+.cat-comercio  { --cor: var(--laranja);      --cor-texto: #2B1500; }
+.cat-cultura   { --cor: var(--amarelo);      --cor-texto: #2B2100; }
+.cat-seguranca { --cor: var(--vermelho);     --cor-texto: #FFFFFF; }
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { width: 100%; height: 100%; }
+body {
+  font-family: 'Montserrat', sans-serif;
+  color: var(--texto);
+  background: var(--branco);
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+}
+
+.peca { position: relative; width: 100%; height: 100%; overflow: hidden; display: flex; flex-direction: column; }
+
+/* Faixa de quatro cores — assinatura da marca */
+.faixa { display: flex; flex: none; height: var(--faixa, 18px); }
+.faixa i { flex: 1; }
+.faixa i:nth-child(1) { background: var(--verde); }
+.faixa i:nth-child(2) { background: var(--amarelo); }
+.faixa i:nth-child(3) { background: var(--laranja); }
+.faixa i:nth-child(4) { background: var(--vermelho); }
+
+/* Marca (selo IO + nome) */
+.marca { display: flex; align-items: center; gap: .45em; font-weight: 800; letter-spacing: -0.01em; color: var(--verde-escuro); }
+.marca-io { display: inline-grid; place-items: center; width: 1.9em; height: 1.9em; border-radius: .5em; background: var(--verde-escuro); color: var(--amarelo); font-weight: 800; font-size: .9em; letter-spacing: -0.02em; flex: none; }
+.marca-clara { color: var(--branco); }
+.marca-clara .marca-io { background: var(--amarelo); color: var(--verde-escuro); }
+
+/* Etiqueta de categoria */
+.etiqueta { display: inline-block; align-self: flex-start; padding: .35em 1em; border-radius: 999px; font-weight: 800; text-transform: uppercase; letter-spacing: .08em; background: var(--cor); color: var(--cor-texto); }
+
+/* Foto com degradê para leitura */
+.foto { position: absolute; inset: 0; background-size: cover; background-position: center; }
+.foto.escurece::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(11,107,53,0) 30%, rgba(7,40,22,.55) 62%, rgba(7,40,22,.92) 100%); }
+
+/* Títulos que se ajustam ao espaço (ver ajustar() no gerar.js) */
+.ajusta { overflow: hidden; }
+h1, h2, h3 { text-wrap: balance; line-height: 1.12; letter-spacing: -0.02em; font-weight: 800; }
+p { text-wrap: pretty; }
+.destaque { color: var(--hl, var(--laranja)); }
+.escuro { --hl: var(--amarelo); }
+mark { background: var(--amarelo); color: var(--texto); padding: 0 .12em; border-radius: .12em; }

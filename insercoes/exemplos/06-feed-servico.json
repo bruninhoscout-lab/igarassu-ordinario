@@ -1,0 +1,11 @@
+{
+  "modelo": "feed-servico",
+  "titulo": "AQUA Pernambuco: contatos da nova empresa da água",
+  "itens": [
+    { "rotulo": "Telefone e WhatsApp", "valor": "0800 772 0001" },
+    { "rotulo": "Desde quando", "valor": "Segunda, 23 de novembro" },
+    { "rotulo": "Reajuste na conta", "valor": "+8,85% a partir de 4/12" }
+  ],
+  "observacao": "A Compesa segue produzindo a água. A AQUA cuida da distribuição e do esgoto.",
+  "data": "23/11/2026"
+}
